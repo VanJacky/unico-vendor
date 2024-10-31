@@ -1,0 +1,13 @@
+<svg width="30.000000" height="30.000000" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip302_2027">
+			<rect id="Line Duotone / Arrows / Alt Arrow Down" width="30.000000" height="30.000000" fill="white" fill-opacity="0"/>
+		</clipPath>
+	</defs>
+	<g clip-path="url(#clip302_2027)">
+		<path id="Vector" d="M22 12L15 18L8 12" stroke="#1C274C" stroke-opacity="1.000000" stroke-width="1.500000" stroke-linecap="round"/>
+	</g>
+</svg>

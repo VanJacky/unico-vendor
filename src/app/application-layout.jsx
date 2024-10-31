@@ -31,14 +31,16 @@ import {
 import {BellAlertIcon , MagnifyingGlassIcon} from '@heroicons/react/24/solid'
 import {usePathname} from "next/navigation";
 import {useState} from "react";
+import YdIcon from "@/utils/yd-icon";
+import YDIcon from "@/utils/yd-icon";
 
 const navItems = [
-    { label: 'Dashboard', key: 'dashboard' , url: '/dashboard'},
-    { label: 'Marketing', key: 'settings', url: '/settings/detail' },
-    { label: 'E-commerce', key: 'settings', url: '/settings/detail' },
-    { label: 'Booking', key: 'settings', url: '/settings/detail' },
-    { label: 'Pop App', key: 'settings', url: '/settings/detail' },
-    { label: 'Financial', key: 'financial', url: '/financial/payment' },
+    { label: 'Dashboard', key: 'dashboard' , url: '/dashboard',icon: '/icons/dash.svg'},
+    { label: 'Marketing', key: 'marketing', url: '/marketing/coupon' ,icon: '/icons/market.svg'},
+    { label: 'E-commerce', key: 'commerce', url: '/commerce/orders',icon: '/icons/myshop.svg' },
+    { label: 'Booking', key: 'booking', url: '/booking/calender' ,icon: '/icons/book.svg'},
+    { label: 'Pop App', key: 'settings', url: '/settings/detail' ,icon: '/icons/app.svg'},
+    { label: 'Financial', key: 'financial', url: '/financial/payment',icon: '/icons/finance.svg' },
 
 ]
 
@@ -89,6 +91,97 @@ export function ApplicationLayout({events, children}) {
                     </SidebarItem>
                 </>
             );
+        }else if (activeNav === 'marketing') {
+            return (
+                <>
+                    <SidebarItem href="/marketing/coupon">
+                        <YDIcon src="/icons/coupon.svg" alt="coupon Icon" />
+
+                        <SidebarLabel>Coupons</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/tuangou.svg" alt="tuangou Icon" />
+
+                        <SidebarLabel>Paid Coupons</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/discount.svg" alt="discount Icon" />
+
+                        <SidebarLabel>Discount</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/messaging.svg" alt="Messaging Icon" />
+
+                        <SidebarLabel>Messaging</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/wallet.svg" alt="Wallet Icon" />
+
+                        <SidebarLabel>Wallet Balance</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/credit.svg" alt="Credit Icon" />
+
+                        <SidebarLabel>Credit</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/unicoads.svg" alt="UNICO Icon" />
+
+                        <SidebarLabel>UNICO Ads</SidebarLabel>
+                    </SidebarItem>
+                </>
+            );
+        }else if (activeNav === 'commerce') {
+            return (
+                <>
+                    <SidebarItem href="/commerce/orders">
+                        <YDIcon src="/icons/order.svg" alt="orders Icon" />
+                        <SidebarLabel>Orders</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/category.svg" alt="categorys Icon" />
+                        <SidebarLabel>Category</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/commerce/products">
+                        <YDIcon src="/icons/product.svg" alt="product Icon" />
+                        <SidebarLabel>Product</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/stock.svg" alt="stock Icon" />
+
+                        <SidebarLabel>Stock</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/commerce/shop">
+                        <YDIcon src="/icons/shop.svg" alt="Store Icon" />
+                        <SidebarLabel>Store</SidebarLabel>
+                    </SidebarItem>
+                </>
+            );
+        }else if (activeNav === 'booking') {
+            return (
+                <>
+                    <SidebarItem href="/booking/calender">
+                        <YDIcon src="/icons/calenders.svg" alt="calenders Icon" />
+
+                        <SidebarLabel>Calender</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/category.svg" alt="Service categorys Icon" />
+
+                        <SidebarLabel>Category</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/services.svg" alt="Service  Icon" />
+
+                        <SidebarLabel>Service</SidebarLabel>
+                    </SidebarItem>
+                    <SidebarItem href="/settings/security">
+                        <YDIcon src="/icons/shop.svg" alt="Store Icon" />
+
+                        <SidebarLabel>Store</SidebarLabel>
+                    </SidebarItem>
+                </>
+            );
         }
     };
     return (
@@ -96,26 +189,32 @@ export function ApplicationLayout({events, children}) {
             navbar={{
                 navItems:
                     <Navbar>
-                    <Dropdown>
-                        <DropdownButton as={NavbarItem} className="max-lg:hidden">
-                            <Avatar src="/teams/catalyst.svg" />
-                            <NavbarLabel>Unico</NavbarLabel>
-                            {/*<ChevronDownIcon />*/}
-                        </DropdownButton>
-                        {/*<TeamDropdownMenu />*/}
-                    </Dropdown>
-                    <NavbarDivider className="max-lg:hidden" />
+                        <Dropdown>
+                            <DropdownButton as={NavbarItem} className="max-lg:hidden">
+                                <Avatar src="/teams/catalyst.svg" />
+                                <NavbarLabel>Unico</NavbarLabel>
+                                {/*<ChevronDownIcon />*/}
+                            </DropdownButton>
+                            {/*<TeamDropdownMenu />*/}
+                        </Dropdown>
+                        <NavbarDivider className="max-lg:hidden" />
                         <NavbarSection>
-                            {navItems.map(({ label, key,url }) => (
-                                <NavbarItem href={url}
+                            {navItems.map(({ label, key, url,icon }) => (
+
+                                <NavbarItem
+                                    href={url}
                                     key={key}
                                     onClick={() => handleNavClick(key)} // 只切换 `Sidebar`，不跳转
+                                    className="whitespace-nowrap overflow-hidden text-ellipsis"
+                                    style={{ maxWidth: '200px' }} // 可以根据需要调整最大宽度
                                 >
+                                    <YDIcon src={icon} alt={key} />
+
                                     {label}
                                 </NavbarItem>
                             ))}
                         </NavbarSection>
-                 </Navbar>,
+                    </Navbar>,
                 right: (
                     <>
                         <NavbarItem href="/inbox" aria-label="Inbox">
@@ -148,8 +247,8 @@ export function ApplicationLayout({events, children}) {
                         <Dropdown>
                             <DropdownButton as={SidebarItem}>
                                 <Avatar src="/teams/catalyst.svg" />
-                                <SidebarLabel>Catalyst</SidebarLabel>
-                                <ChevronDownIcon />
+                                <SidebarLabel>Unico</SidebarLabel>
+                                {/*<ChevronDownIcon />*/}
                             </DropdownButton>
 
                         </Dropdown>

@@ -14,7 +14,7 @@ import {
     PaginationPrevious,
 } from '@/components/pagination'
 import React from "react";
-import {RefundOrder} from "@/app/orders/[id]/refund";
+import {RefundOrder} from "@/app/commerce/orders/[id]/refund";
 import {Button} from "@/components/button";
 
 

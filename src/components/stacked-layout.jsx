@@ -84,7 +84,7 @@ export function StackedLayout({ navbar, sidebar, children }) {
                 {/* 顶部导航栏中部 - 接受传入的导航选项 */}
                 <div className="min-w-0 flex-1 flex justify-between items-center">
 
-                    <div className="min-w-0 flex-1">{navbar.navItems}</div>
+                    <div className="min-w-0 flex-1 overflow-x-auto">{navbar.navItems}</div>
 
                     {/* 右侧传入的 Navbar 内容 (如用户头像, 通知等) */}
                     <div className="flex items-center">
@@ -94,10 +94,10 @@ export function StackedLayout({ navbar, sidebar, children }) {
             </header>
 
             {/* Content */}
-            <main className="flex flex-1 flex-col pt-16 lg:pl-64 pb-2 lg:px-2">
+            <main className="flex flex-1 flex-col pt-16 lg:pl-52 pb-2 lg:px-2">
                 {/* 顶部导航栏固定占位符：为内容添加 `pt-16`，以避免内容被固定的导航栏遮挡 */}
                 <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
-                    <div className="mx-auto max-w-6xl">{children}</div>
+                    <div className="mx-auto max-w-7xl">{children}</div>
                 </div>
             </main>
         </div>
