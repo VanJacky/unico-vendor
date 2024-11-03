@@ -8,6 +8,7 @@ import { CheckIcon } from '@heroicons/react/20/solid'
 import AccountSettings from "@/app/settings/tabs/account-setting";
 import SecuritySettings from "@/app/settings/tabs/security-setting";
 import PlanSetting from "@/app/settings/tabs/plan-setting";
+import ReportSetting from "@/app/settings/tabs/report-setting";
 const secondaryNavigation = [
     {name: 'Account', href: '#', current: true, id: 'account'},
     {name: 'Security', href: '#', current: false, id: 'security'},
@@ -64,7 +65,9 @@ export default function SettingChangeTabs({events}) {
             {selectedTab === 'plans' && (
                 <PlanSetting/>
             )}
-
+            {selectedTab === 'report' && (
+                <ReportSetting/>
+            )}
 
         </main>
     );

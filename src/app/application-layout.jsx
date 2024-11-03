@@ -39,7 +39,7 @@ const navItems = [
     { label: 'Marketing', key: 'marketing', url: '/marketing/coupon' ,icon: '/icons/market.svg'},
     { label: 'E-commerce', key: 'commerce', url: '/commerce/orders',icon: '/icons/myshop.svg' },
     { label: 'Booking', key: 'booking', url: '/booking/calender' ,icon: '/icons/book.svg'},
-    { label: 'Pop App', key: 'settings', url: '/settings/detail' ,icon: '/icons/app.svg'},
+    { label: 'Pop App', key: 'popApp', url: '' ,icon: '/icons/app.svg'},
     { label: 'Financial', key: 'financial', url: '/financial/payment',icon: '/icons/finance.svg' },
 
 ]
@@ -49,7 +49,12 @@ export function ApplicationLayout({events, children}) {
     const [activeNav, setActiveNav] = useState('dashboard'); // 控制当前激活的 Navbar 项目
     // 当点击 Navbar 项目时切换 `Sidebar` 内容
     const handleNavClick = (key) => {
-        setActiveNav(key); // 只切换 Sidebar 的内容
+        if (key === 'popApp') {
+            // Open "Pop App" in a new tab
+            window.open('https://unico-dnd.vercel.app/#/', '_blank');
+        } else {
+            setActiveNav(key); // Set active item for other cases
+        }
     };
 
     // 根据当前激活的 Navbar 项目渲染不同的 Sidebar 子项
@@ -99,32 +104,29 @@ export function ApplicationLayout({events, children}) {
 
                         <SidebarLabel>Coupons</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/marketing/paidCoupon">
                         <YDIcon src="/icons/tuangou.svg" alt="tuangou Icon" />
-
                         <SidebarLabel>Paid Coupons</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/marketing/discount">
                         <YDIcon src="/icons/discount.svg" alt="discount Icon" />
 
                         <SidebarLabel>Discount</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/marketing/message">
                         <YDIcon src="/icons/messaging.svg" alt="Messaging Icon" />
-
-                        <SidebarLabel>Messaging</SidebarLabel>
+                        <SidebarLabel>Campaigns</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/marketing/balance">
                         <YDIcon src="/icons/wallet.svg" alt="Wallet Icon" />
-
                         <SidebarLabel>Wallet Balance</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/marketing/credit">
                         <YDIcon src="/icons/credit.svg" alt="Credit Icon" />
 
-                        <SidebarLabel>Credit</SidebarLabel>
+                        <SidebarLabel>Points</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/marketing/ads/edit">
                         <YDIcon src="/icons/unicoads.svg" alt="UNICO Icon" />
 
                         <SidebarLabel>UNICO Ads</SidebarLabel>

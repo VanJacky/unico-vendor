@@ -6,6 +6,7 @@ import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } fro
 import { Input } from "@/components/input";
 import { Button } from "@/components/button";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
+import CouponRadio from "@/app/marketing/coupon/component/coupon-type-radio";
 
 export default function CouponType() {
   let [selected, setSelected] = useState('discount');
@@ -89,7 +90,7 @@ export default function CouponType() {
           </RadioGroup>
 
           {/* Dialog for Editing Coupon */}
-          <Dialog open={isOpen} onClose={closeDialog}>
+          <Dialog size={"4xl"} open={isOpen} onClose={closeDialog}>
             <DialogTitle>
               {selectedEdit === "discount" ? "Edit Discount Coupon" : "Edit Redemption Coupon"}
             </DialogTitle>
@@ -157,6 +158,11 @@ export default function CouponType() {
                     />
                   </Field>
               )}
+
+              <Field className={"mt-5"}>
+                <CouponRadio selectedCouponType={selectedEdit}/>
+              </Field>
+
             </DialogBody>
             <DialogActions>
               <Button plain onClick={closeDialog}>Cancel</Button>

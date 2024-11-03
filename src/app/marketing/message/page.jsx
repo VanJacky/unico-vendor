@@ -20,7 +20,7 @@ export default async function CouponsPage() {
 
           <div className=" flex flex-wrap items-end justify-between gap-4">
               <div className="max-sm:w-full sm:flex-1">
-                  <Heading>Coupons</Heading>
+                  <Heading>Marketing Campaigns</Heading>
                   <div className="mt-4 flex max-w-xl gap-4">
                       <div className="flex-1">
                           <InputGroup>
@@ -38,8 +38,8 @@ export default async function CouponsPage() {
                   </div>
               </div>
               <Button>
-                  <Link href='/marketing/coupon/edit'>
-                      Create Coupon
+                  <Link href='/marketing/message/edit'>
+                      Create New Campaign
                   </Link>
               </Button>
           </div>

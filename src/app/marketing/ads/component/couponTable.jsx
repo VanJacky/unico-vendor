@@ -1,5 +1,5 @@
 'use client';
-import PromotionDialog from './promotion_dialog'; // 引入弹窗组件
+import PromotionDialog from './promotion_dialog_one'; // 引入弹窗组件
 
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Avatar } from '@/components/avatar';
@@ -12,7 +12,7 @@ import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
 import {ShowUser} from "@/app/marketing/coupon/component/district-coupon";
 
-export default function CouponsTable({ products }) {
+export default function PaidCouponsTable({ products }) {
     const [expandedRows, setExpandedRows] = useState({});
     const [selectedTab, setSelectedTab] = useState('All');
     const [selectedProducts, setSelectedProducts] = useState([]);

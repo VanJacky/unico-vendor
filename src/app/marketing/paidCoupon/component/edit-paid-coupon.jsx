@@ -1,17 +1,18 @@
 
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
  import SelectProductCategory from "@/app/commerce/products/component/select-product-category";
-import {ErrorMessage, Field, Label} from "@/components/fieldset";
+import {ErrorMessage, Field, Fieldset, Label} from "@/components/fieldset";
 import {Select} from "@/components/select";
 import CouponRadio from "@/app/marketing/coupon/component/coupon-type-radio";
 import CouponType from "@/app/marketing/coupon/component/coupon-type";
+import {Input} from "@/components/input";
 
-export default function EditCoupon() {
+export default function EditPaidCoupon() {
     return (
         <form>
             <div className="space-y-12">
                 <div className="border-b border-gray-900/10 pb-12">
-                    <h2 className="text-base font-semibold leading-7 text-gray-900">Coupon</h2>
+                    <h2 className="text-base font-semibold leading-7 text-gray-900">Paid Coupon</h2>
                     <p className="mt-1 text-sm leading-6 text-gray-600">
                         This information will be publicly visible. Please ensure that you share accurate details.
                     </p>
@@ -39,55 +40,35 @@ export default function EditCoupon() {
 
 
                         <div className="sm:col-span-4">
-                            <Field>
-                                <label className="block text-sm font-medium leading-6 text-gray-900">
-                                    Valid Period
-                                </label>
-                                <div className="mt-2">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-                                        <Select name="bt" defaultValue="" className="sm:flex-1">
-                                            <option value="" disabled>
-                                                Begin time&hellip;
-                                            </option>
-                                        </Select>
-                                        {/*{errors.has('status') && <ErrorMessage>{errors.get('status')}</ErrorMessage>}*/}
-
-
-                                        {/* "到" Text for Separation */}
-                                        <span className="text-center text-sm text-gray-600 my-1  ">To</span>
-
-                                        <Select name="et" defaultValue="" className="sm:flex-1">
-                                            <option value="" disabled>
-                                                End time&hellip;
-                                            </option>
-                                        </Select>
-
-
-                                    </div>
-                                </div>
-
-                            </Field>
+                            <Fieldset>
+                                <Field>
+                                    <Label>Price</Label>
+                                    <Input
+                                        name="Price"
+                                        placeholder="$10.00"
+                                        autoFocus
+                                    />
+                                </Field>
+                            </Fieldset>
                         </div>
+
 
                         <div className="sm:col-span-4">
-                            <CouponType/>
-                        </div>
-
-                        {/*<div className="sm:col-span-4">*/}
-                        {/*    <CouponRadio/>*/}
-                        {/*</div>*/}
-                        <div className="mt-6 sm:col-span-4">
                             <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                                Distribution Method
+                                Paid Coupon Quantity Limit
                             </label>
                             <div className="mt-2">
-                                <div>
-                                    <Select aria-label="Distribution" name="Distribution" defaultValue="p">
-                                        <option value="p">User Self-Collection</option>
-                                        <option value="e">Manual Distribution</option>
-                                        <option value="b">Automatic Distribution for New Users</option>
-
-                                    </Select>
+                                <div
+                                    className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                                    {/*<span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">workcation.com/</span>*/}
+                                    <input
+                                        type="text"
+                                        name="Rule"
+                                        id="Rule"
+                                        autoComplete="Rule"
+                                        className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                        placeholder="example:100"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -111,6 +92,14 @@ export default function EditCoupon() {
                                 </div>
                             </div>
                         </div>
+
+                        <div className="sm:col-span-4">
+                            <Field className={"mt-5"}>
+                                <CouponRadio selectedCouponType={"discount"}/>
+                            </Field>
+                        </div>
+
+
                     </div>
                 </div>
 
