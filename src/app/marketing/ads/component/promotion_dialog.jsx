@@ -34,7 +34,7 @@ function classNames(...classes) {
 
 export default function PromotionDialog({ open, setOpen }) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const [selectedSize, setSelectedSize] = useState(product.sizes[3]);
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -82,66 +82,12 @@ export default function PromotionDialog({ open, setOpen }) {
                       <img src={product.imageSrc} alt={product.imageAlt} className="object-cover object-center" />
                     </div>
                     <div className="sm:col-span-8 lg:col-span-7">
-                      <h2 className="text-xl font-medium text-gray-900 sm:pr-12">{"这是优惠券名称"}</h2>
+                      <h2 className="text-xl font-medium text-gray-900 sm:pr-12">{"预览页面"}</h2>
                       <section aria-labelledby="options-heading" className="mt-8">
                         <h3 id="options-heading" className="sr-only">
                           promotion options
                         </h3>
-                        <form>
 
-                          <div className="sm:col-span-4">
-                            <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                              Promotion Title
-                            </label>
-                            <div className="mt-2">
-                              <div
-                                  className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                                {/*<span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">workcation.com/</span>*/}
-                                <input
-                                    type="text"
-                                    name="username"
-                                    id="username"
-                                    autoComplete="username"
-                                    className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                                    placeholder="cupcake"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 sm:col-span-4">
-                            <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
-                              Promotion Content
-                            </label>
-                            <div className="mt-2">
-                            <textarea
-                                id="about"
-                                name="about"
-                                rows={3}
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                defaultValue={''}
-                            />
-                            </div>
-                            {/*<p className="mt-3 text-sm leading-6 text-gray-600">*/}
-                            {/*  Write a few sentences about yourself.*/}
-                            {/*</p>*/}
-                          </div>
-
-                          <div className="mt-4 col-span-full">
-                            <label htmlFor="photo" className="block text-sm font-medium leading-6 text-gray-900">
-                              Promotion Image
-                            </label>
-                            <div className="mt-2 flex items-center gap-x-3">
-                              <PhotoIcon className="h-12 w-12 text-gray-300" aria-hidden="true"/>
-                              <button
-                                  type="button"
-                                  className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                              >
-                                Change
-                              </button>
-                            </div>
-                          </div>
-                        </form>
                       </section>
                     </div>
                   </div>
