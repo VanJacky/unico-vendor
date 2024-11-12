@@ -9,105 +9,49 @@ import {Badge} from "@/components/badge";
 import {Dropdown, DropdownButton, DropdownItem, DropdownMenu} from "@/components/dropdown";
 import {EllipsisHorizontalIcon} from "@heroicons/react/16/solid";
 import {Link} from "@/components/link";
+import {Switch} from "@/components/switch";
 
-export default function OrdersTable({ orders }) {
+export default function CategoryTable({ category }) {
     const [expandedRows, setExpandedRows] = useState({});
 
-    const toggleExpand = (orderId) => {
-        setExpandedRows((prev) => ({
-            ...prev,
-            [orderId]: !prev[orderId],
-        }));
-    };
-    const [selectedTab, setSelectedTab] = useState('All');
 
-    const handleTabChange = (tab) => {
-        setSelectedTab(tab);
-    };
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
+
 
     return (
         <main>
-            <div className="mt-7 py-2 sm:mt-7">
-                <div className="sm:hidden">
-                    <label htmlFor="current-tab" className="sr-only">
-                        Select a tab
-                    </label>
-                    <select
-                        id="current-tab"
-                        name="current-tab"
-                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                        value={selectedTab}
-                        onChange={(e) => handleTabChange(e.target.value)}
-                    >
-                        {['All', 'Not Shipped', 'Shipped', 'Completed', 'Awaiting Pickup', 'Pending After-Sales', 'Cancelled', 'Refunded'].map((tab) => (
-                            <option key={tab} value={tab}>
-                                {tab}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="hidden sm:block">
-                    <nav className="mt-2 -mb-px flex space-x-12 overflow-x-auto ">
-                        {['All', 'Not Shipped', 'Shipped', 'Completed', 'Awaiting Pickup', 'Pending After-Sales', 'Cancelled', 'Refunded'].map((tab) => (
-                            <a
-                                key={tab}
-                                href="#"
-                                onClick={() => handleTabChange(tab)}
-                                className={classNames(
-                                    selectedTab === tab
-                                        ? 'border-indigo-500 text-indigo-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                                    'whitespace-nowrap pb-4 px-1 border-b-2 font-bold text-sm'
-                                )}
-                                aria-current={selectedTab === tab ? 'page' : undefined}
-                            >
-                                {tab}
-                            </a>
-                        ))}
-                    </nav>
-                </div>
+            <div className="mt-2 py-2 sm:mt-7">
+
+
             </div>
             <div>
                 <Table className=" mt-10 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
                     <TableHead>
                         <TableRow>
-                            <TableHeader>Order number</TableHeader>
-                            <TableHeader>Purchase date</TableHeader>
-                            <TableHeader>Customer</TableHeader>
-                            <TableHeader>Phone Number</TableHeader>
-                            <TableHeader>Amount</TableHeader>
-                            <TableHeader>Shipping Method</TableHeader>
-                            <TableHeader>Status</TableHeader>
-                            <TableHeader>Action</TableHeader>
-                            <TableHeader></TableHeader>
+                            <TableHeader>ID</TableHeader>
+                            <TableHeader>Category Name</TableHeader>
+                             <TableHeader>Product Quantity</TableHeader>
+                            <TableHeader>Create Date</TableHeader>
+                            <TableHeader>Show/Hide</TableHeader>
+                            <TableHeader className="relative w-0">
+                                <span className="sr-only">Actions</span>
+                            </TableHeader>
 
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {orders.map((order) => (
-                            <React.Fragment key={order.id}>
-                                <TableRow className="cursor-pointer" onClick={() => toggleExpand(order.id)}>
+                        {category.map((ca) => (
+                            <React.Fragment key={ca.id}>
+                                <TableRow className="cursor-pointer"  >
 
-                                    <TableCell>{order.id}</TableCell>
-                                    <TableCell className="text-zinc-500">{order.date}</TableCell>
-                                    <TableCell>{order.customer.name}</TableCell>
-                                    <TableCell>{order.phoneNumber}</TableCell>
-                                    <TableCell>{order.amount.usd}</TableCell>
-                                    <TableCell>{order.shipping.method}</TableCell>
+                                    <TableCell>{ca.id}</TableCell>
+                                    <TableCell>{ca.categoryName}</TableCell>
+                                    <TableCell>{ca.productQuantity}</TableCell>
 
+                                    <TableCell className="text-zinc-500">{ca.createTime}</TableCell>
                                     <TableCell>
-                                        {/*<div className="flex items-center gap-2">*/}
-                                        {/*    <Avatar src={order.event.thumbUrl} className="size-6"/>*/}
-                                        {/*    <span>{order.event.name}</span>*/}
-                                        {/*</div>*/}
-                                        <Badge className="max-sm:hidden"
-                                               color={order.status === 'Completed' ? 'lime' : 'zinc'}>
-                                            {order.status}
-                                        </Badge>
+                                        <Switch aria-label="Allow show" name="show" value={ca.show}/>
                                     </TableCell>
+
                                     {/*<TableCell className="text-right">US{order.amount.usd}</TableCell>*/}
                                     <TableCell>
                                         <div className="-mx-3 -my-1.5 sm:-mx-2.5">
@@ -117,7 +61,7 @@ export default function OrdersTable({ orders }) {
                                                 </DropdownButton>
                                                 <DropdownMenu anchor="bottom end">
                                                     <DropdownItem>
-                                                        <a href={`/commerce${order.url}`} title={`Order #${order.id}`}
+                                                        <a href={`/commerce${ca.url}`} title={`Order #${ca.id}`}
                                                            className="block w-full h-full">
                                                             View
                                                         </a>
@@ -130,43 +74,9 @@ export default function OrdersTable({ orders }) {
                                             </Dropdown>
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        {expandedRows[order.id] ? (
-                                            <YDIcon src="/icons/up.svg" alt="Expanded Order Icon" className='w-3 h-3'/>
-                                        ) : (
-                                            <YDIcon src="/icons/down.svg" alt="Collapsed Order Icon" className='w-3 h-3'/>
-                                        )}
-                                    </TableCell>
 
                                 </TableRow>
-                                {expandedRows[order.id] && (
-                                    <TableRow className="bg-gray-50 w-full">
-                                        <TableCell colSpan="9" className="p-0">
-                                            <Table className="w-full [--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableHeader>Product Information</TableHeader>
-                                                        <TableHeader>User Address</TableHeader>
-                                                        <TableHeader>User Email</TableHeader>
-                                                        <TableHeader>Tracking Number</TableHeader>
-                                                        <TableHeader>User Notes</TableHeader>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    <TableRow>
-                                                        <TableCell className="font-medium">{`${order.products[0].name} x ${order.products[0].quantity}`} </TableCell>
-                                                        <TableCell className="text-zinc-500">{order.customer.address}</TableCell>
-                                                        <TableCell className="text-zinc-500" >{order.customer.email}</TableCell>
-                                                        <TableCell className="text-zinc-500">{order.shipping.trackingNumber}</TableCell>
-                                                        <TableCell  className="whitespace-normal break-words text-zinc-500">
-                                                            {order.notes}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </TableBody>
-                                            </Table>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
+
                             </React.Fragment>
                         ))}
                     </TableBody>

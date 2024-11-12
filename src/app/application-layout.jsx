@@ -140,7 +140,7 @@ export function ApplicationLayout({events, children}) {
                         <YDIcon src="/icons/order.svg" alt="orders Icon" />
                         <SidebarLabel>Orders</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/commerce/category">
                         <YDIcon src="/icons/category.svg" alt="categorys Icon" />
                         <SidebarLabel>Category</SidebarLabel>
                     </SidebarItem>
@@ -148,7 +148,7 @@ export function ApplicationLayout({events, children}) {
                         <YDIcon src="/icons/product.svg" alt="product Icon" />
                         <SidebarLabel>Product</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/commerce/stock">
                         <YDIcon src="/icons/stock.svg" alt="stock Icon" />
 
                         <SidebarLabel>Stock</SidebarLabel>

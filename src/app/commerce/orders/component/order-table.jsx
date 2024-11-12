@@ -10,7 +10,7 @@ import {Dropdown, DropdownButton, DropdownItem, DropdownMenu} from "@/components
 import {EllipsisHorizontalIcon} from "@heroicons/react/16/solid";
 import {Link} from "@/components/link";
 
-export default function CategoryTable({ orders }) {
+export default function OrderTable({ orders }) {
     const [expandedRows, setExpandedRows] = useState({});
 
     const toggleExpand = (orderId) => {

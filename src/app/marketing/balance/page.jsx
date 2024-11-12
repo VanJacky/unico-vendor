@@ -1,21 +1,20 @@
-// `OrdersPage` is a server-side component (e.g., in a `page.tsx` file)
-import { getOrders } from '@/data'
- import {Heading} from "@/components/heading";
+   import {Heading} from "@/components/heading";
 import {Button} from "@/components/button";
 import {Input, InputGroup} from "@/components/input";
 import {MagnifyingGlassIcon} from "@heroicons/react/16/solid";
 import {Select} from "@/components/select";
  import {Link} from "@/components/link";
-import CouponsTable from "@/app/marketing/coupon/component/couponTable";
-import BalanceRule from "@/app/marketing/balance/component/balance-rule";
+ import BalanceRule from "@/app/marketing/balance/component/balance-rule";
 import React from "react";
+import { getStoredValueOrders } from "@/data";
+import BalanceTable from "./component/balance-table";
 
 export const metadata = {
   title: 'balance',
 }
 
 export default async function BalancePage() {
-  const products = await getOrders()
+    const products = await getStoredValueOrders()
 
   return (
       <div className="mx-auto">
@@ -62,7 +61,7 @@ export default async function BalancePage() {
                   </Link>
               </Button>
           </div>
-          <CouponsTable products={products}/>
+          <BalanceTable products={products}/>
       </div>
 
   )

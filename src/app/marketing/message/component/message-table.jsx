@@ -12,7 +12,7 @@ import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
 import {ShowUser} from "@/app/marketing/coupon/component/district-coupon";
 
-export default function PaidCouponsTable({ products }) {
+export default function MessageTable({ messages }) {
     const [expandedRows, setExpandedRows] = useState({});
     const [selectedTab, setSelectedTab] = useState('All');
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -38,14 +38,14 @@ export default function PaidCouponsTable({ products }) {
     }
 
     useLayoutEffect(() => {
-        const isIndeterminate = selectedProducts.length > 0 && selectedProducts.length < products.length;
-        setChecked(selectedProducts.length === products.length);
+        const isIndeterminate = selectedProducts.length > 0 && selectedProducts.length < messages.length;
+        setChecked(selectedProducts.length === messages.length);
         setIndeterminate(isIndeterminate);
         checkbox.current.indeterminate = isIndeterminate;
-    }, [selectedProducts, products]);
+    }, [selectedProducts, messages]);
 
     const toggleAll = () => {
-        setSelectedProducts(checked || indeterminate ? [] : products);
+        setSelectedProducts(checked || indeterminate ? [] : messages);  
         setChecked(!checked && !indeterminate);
         setIndeterminate(false);
     };
@@ -125,72 +125,50 @@ export default function PaidCouponsTable({ products }) {
                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                 />
                             </TableHeader>
-                            <TableHeader>Id</TableHeader>
-                            <TableHeader>Name</TableHeader>
-                            <TableHeader>Image</TableHeader>
-                            <TableHeader>Specs</TableHeader>
-                            <TableHeader>Amount</TableHeader>
-                            <TableHeader>Category</TableHeader>
-                            <TableHeader>Sales</TableHeader>
-
-                            <TableHeader>Create date</TableHeader>
-                            <TableHeader>Status</TableHeader>
+                            <TableHeader>Title</TableHeader>
+                            <TableHeader>Send Method</TableHeader>
+                            <TableHeader>Related Coupon</TableHeader>
+                            <TableHeader>Users</TableHeader>
+                            <TableHeader>Push Status</TableHeader>
+                            <TableHeader>Publish Time</TableHeader>
+                            <TableHeader>Push Count</TableHeader>
                             <TableHeader>Action</TableHeader>
-                            {/*<TableHeader></TableHeader>*/}
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((order) => (
-                            <React.Fragment key={order.id}>
+                        {messages.map((message) => (
+                            <React.Fragment key={message.title}>
                                 <TableRow
                                     className={classNames(
                                         'cursor-pointer',
-                                        selectedProducts.includes(order) ? 'bg-gray-50' : ''
+                                        selectedProducts.includes(message) ? 'bg-gray-50' : ''
                                     )}
-                                    onClick={() => toggleExpand(order.id)}
                                 >
                                     <TableCell className="relative">
-                                        {selectedProducts.includes(order) && (
+                                        {selectedProducts.includes(message) && (
                                             <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
                                         )}
                                         <input
                                             type="checkbox"
                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                            checked={selectedProducts.includes(order)}
-                                            onChange={() => toggleProduct(order)}
+                                            checked={selectedProducts.includes(message)}
+                                            onChange={() => toggleProduct(message)}
                                         />
                                     </TableCell>
-                                    <TableCell>{order.id}</TableCell>
-                                    <TableCell>{order.event.name}</TableCell>
-
-                                    <TableCell>
-                                        <div className="flex items-center">
-                                            {/*<Avatar src={order.event.thumbUrl} className="size-6"/>*/}
-                                            <img
-                                                className="h-15 w-15  bg-gray-800"
-                                                src={order.event.thumbUrl}
-                                                alt=""
-                                            />
-                                            {/*<span>{order.event.name}</span>*/}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{order.customer.country}</TableCell>
-
-                                    <TableCell>{order.amount.usd}</TableCell>
-
-                                    <TableCell>{order.customer.country}</TableCell>
-                                    <TableCell>{order.payment.card.number}</TableCell>
-
-                                    <TableCell className="text-zinc-500">{order.date}</TableCell>
-
+                                    <TableCell>{message.title}</TableCell>
+                                    <TableCell>{message.sendMethod}</TableCell>
+                                    <TableCell>{message.relatedCoupon}</TableCell>
+                                    <TableCell>{message.users}</TableCell>
                                     <TableCell>
                                         <Badge
-                                                className="max-sm:hidden"
-                                                color={order.status === 'Completed' ? 'lime' : 'zinc'}
-                                            >
-                                                {order.status}
-                                            </Badge>
+                                            className="max-sm:hidden"
+                                            color={message.pushStatus === '已推送' ? 'lime' : 'zinc'}
+                                        >
+                                            {message.pushStatus}
+                                        </Badge>
                                     </TableCell>
+                                    <TableCell>{message.publishTime}</TableCell>
+                                    <TableCell>{message.pushCount}</TableCell>
                                     <TableCell>
                                         <div className="-mx-3 -my-1.5 sm:-mx-2.5">
                                             <Dropdown>
@@ -199,15 +177,15 @@ export default function PaidCouponsTable({ products }) {
                                                 </DropdownButton>
                                                 <DropdownMenu anchor="bottom end">
                                                     <DropdownItem
-                                                        onClick={() => setShowPromotionDialog(true)} // 点击显示 PromotionDialog
+                                                        onClick={() => setShowPromotionDialog(true)}
                                                     >
                                                         Market
                                                     </DropdownItem>
                                                     <DropdownItem onClick={() => setShowUser(true)}>Distribute</DropdownItem>
                                                     <DropdownItem>
-                                                        <a href={`/commerce${order.url}`} title={`Order #${order.id}`} className="block w-full h-full">
+                                                        <Link href={`/marketing/message/edit/${message.id}`}>
                                                             View
-                                                        </a>
+                                                        </Link>
                                                     </DropdownItem>
                                                     <DropdownItem>Edit</DropdownItem>
                                                     <DropdownItem>Delete</DropdownItem>
@@ -215,7 +193,6 @@ export default function PaidCouponsTable({ products }) {
                                             </Dropdown>
                                         </div>
                                     </TableCell>
-
                                 </TableRow>
                             </React.Fragment>
                         ))}

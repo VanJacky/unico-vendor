@@ -1,5 +1,5 @@
 // `OrdersPage` is a server-side component (e.g., in a `page.tsx` file)
-import { getOrders } from '@/data'
+import { getCashbackUsers } from '@/data'
  import {Heading} from "@/components/heading";
 import {Button} from "@/components/button";
 import {Input, InputGroup} from "@/components/input";
@@ -10,13 +10,14 @@ import CouponsTable from "@/app/marketing/coupon/component/couponTable";
 import BalanceRule from "@/app/marketing/balance/component/balance-rule";
 import React from "react";
 import CreditType from "@/app/marketing/credit/component/credit-type";
+import CreditTable from './component/credit-table';
 
 export const metadata = {
   title: 'Credit',
 }
 
 export default async function CreditPage() {
-  const products = await getOrders()
+    const products = await getCashbackUsers()
 
   return (
       <div className="mx-auto">
@@ -57,7 +58,7 @@ export default async function CreditPage() {
                   </Link>
               </Button>
           </div>
-          <CouponsTable products={products}/>
+          <CreditTable products={products}/>
       </div>
 
   )

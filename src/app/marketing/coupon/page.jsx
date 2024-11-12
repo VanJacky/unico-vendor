@@ -1,5 +1,5 @@
 // `OrdersPage` is a server-side component (e.g., in a `page.tsx` file)
-import { getOrders } from '@/data'
+import { getCoupons, getOrders } from '@/data'
  import {Heading} from "@/components/heading";
 import {Button} from "@/components/button";
 import {Input, InputGroup} from "@/components/input";
@@ -13,7 +13,7 @@ export const metadata = {
 }
 
 export default async function CouponsPage() {
-  const products = await getOrders()
+  const coupons = await getCoupons()
 
   return (
       <div className="mx-auto">
@@ -43,7 +43,7 @@ export default async function CouponsPage() {
                   </Link>
               </Button>
           </div>
-          <CouponsTable products={products}/>
+          <CouponsTable coupons={coupons}/>
       </div>
 
   )

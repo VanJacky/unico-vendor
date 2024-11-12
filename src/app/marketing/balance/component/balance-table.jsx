@@ -12,7 +12,7 @@ import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
 import {ShowUser} from "@/app/marketing/coupon/component/district-coupon";
 
-export default function CouponsTable({ products }) {
+export default function BalanceTable({ products }) {
     const [expandedRows, setExpandedRows] = useState({});
     const [selectedTab, setSelectedTab] = useState('All');
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -125,29 +125,25 @@ export default function CouponsTable({ products }) {
                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                 />
                             </TableHeader>
-                            <TableHeader>Id</TableHeader>
-                            <TableHeader>Name</TableHeader>
-                            <TableHeader>Image</TableHeader>
-                            <TableHeader>Specs</TableHeader>
-                            <TableHeader>Amount</TableHeader>
-                            <TableHeader>Category</TableHeader>
-                            <TableHeader>Sales</TableHeader>
-
-                            <TableHeader>Create date</TableHeader>
-                            <TableHeader>Status</TableHeader>
+                            <TableHeader>Order ID</TableHeader>
+                            <TableHeader>User ID</TableHeader>
+                            <TableHeader>Username</TableHeader>
+                            <TableHeader>Contact</TableHeader>
+                            <TableHeader>Stored Amount</TableHeader>
+                            <TableHeader>Gift Amount</TableHeader>
+                            <TableHeader>Order Time</TableHeader>
                             <TableHeader>Action</TableHeader>
-                            {/*<TableHeader></TableHeader>*/}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {products.map((order) => (
-                            <React.Fragment key={order.id}>
+                            <React.Fragment key={order.orderId}>
                                 <TableRow
                                     className={classNames(
                                         'cursor-pointer',
                                         selectedProducts.includes(order) ? 'bg-gray-50' : ''
                                     )}
-                                    onClick={() => toggleExpand(order.id)}
+                                    onClick={() => toggleExpand(order.orderId)}
                                 >
                                     <TableCell className="relative">
                                         {selectedProducts.includes(order) && (
@@ -160,37 +156,13 @@ export default function CouponsTable({ products }) {
                                             onChange={() => toggleProduct(order)}
                                         />
                                     </TableCell>
-                                    <TableCell>{order.id}</TableCell>
-                                    <TableCell>{order.event.name}</TableCell>
-
-                                    <TableCell>
-                                        <div className="flex items-center">
-                                            {/*<Avatar src={order.event.thumbUrl} className="size-6"/>*/}
-                                            <img
-                                                className="h-15 w-15  bg-gray-800"
-                                                src={order.event.thumbUrl}
-                                                alt=""
-                                            />
-                                            {/*<span>{order.event.name}</span>*/}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{order.customer.country}</TableCell>
-
-                                    <TableCell>{order.amount.usd}</TableCell>
-
-                                    <TableCell>{order.customer.country}</TableCell>
-                                    <TableCell>{order.payment.card.number}</TableCell>
-
-                                    <TableCell className="text-zinc-500">{order.date}</TableCell>
-
-                                    <TableCell>
-                                        <Badge
-                                                className="max-sm:hidden"
-                                                color={order.status === 'Completed' ? 'lime' : 'zinc'}
-                                            >
-                                                {order.status}
-                                            </Badge>
-                                    </TableCell>
+                                    <TableCell>{order.orderId}</TableCell>
+                                    <TableCell>{order.userId}</TableCell>
+                                    <TableCell>{order.username}</TableCell>
+                                    <TableCell>{order.contactMethod}</TableCell>
+                                    <TableCell>{order.storedAmount}</TableCell>
+                                    <TableCell>{order.giftAmount}</TableCell>
+                                    <TableCell>{order.orderTime}</TableCell>
                                     <TableCell>
                                         <div className="-mx-3 -my-1.5 sm:-mx-2.5">
                                             <Dropdown>
@@ -198,24 +170,13 @@ export default function CouponsTable({ products }) {
                                                     <EllipsisHorizontalIcon />
                                                 </DropdownButton>
                                                 <DropdownMenu anchor="bottom end">
-                                                    <DropdownItem
-                                                        onClick={() => setShowPromotionDialog(true)} // 点击显示 PromotionDialog
-                                                    >
-                                                        Market
-                                                    </DropdownItem>
-                                                    <DropdownItem onClick={() => setShowUser(true)}>Distribute</DropdownItem>
-                                                    <DropdownItem>
-                                                        <a href={`/commerce${order.url}`} title={`Order #${order.id}`} className="block w-full h-full">
-                                                            View
-                                                        </a>
-                                                    </DropdownItem>
+                                                    <DropdownItem>View</DropdownItem>
                                                     <DropdownItem>Edit</DropdownItem>
                                                     <DropdownItem>Delete</DropdownItem>
                                                 </DropdownMenu>
                                             </Dropdown>
                                         </div>
                                     </TableCell>
-
                                 </TableRow>
                             </React.Fragment>
                         ))}

@@ -1,19 +1,18 @@
- import { getOrders } from '@/data'
- import {Heading} from "@/components/heading";
+  import {Heading} from "@/components/heading";
 import {Button} from "@/components/button";
 import {Input, InputGroup} from "@/components/input";
 import {MagnifyingGlassIcon} from "@heroicons/react/16/solid";
 import {Select} from "@/components/select";
  import {Link} from "@/components/link";
- import PaidCouponsTable from "@/app/marketing/paidCoupon/component/couponTable";
-
+import DiscountTable from './component/discount-coupon-table';
+import { getActivity } from "@/data";
+ 
 export const metadata = {
   title: 'Edit Discount',
 }
 
 export default async function CouponsPage() {
-  const products = await getOrders()
-
+   const activities = await getActivity();
   return (
       <div className="mx-auto">
 
@@ -42,7 +41,7 @@ export default async function CouponsPage() {
                   </Link>
               </Button>
           </div>
-          <PaidCouponsTable products={products}/>
+          <DiscountTable activities={activities}/>
       </div>
 
   )

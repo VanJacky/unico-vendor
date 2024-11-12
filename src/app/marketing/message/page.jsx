@@ -1,19 +1,19 @@
 // `OrdersPage` is a server-side component (e.g., in a `page.tsx` file)
-import { getOrders } from '@/data'
- import {Heading} from "@/components/heading";
+  import {Heading} from "@/components/heading";
 import {Button} from "@/components/button";
 import {Input, InputGroup} from "@/components/input";
 import {MagnifyingGlassIcon} from "@heroicons/react/16/solid";
 import {Select} from "@/components/select";
  import {Link} from "@/components/link";
-import CouponsTable from "@/app/marketing/coupon/component/couponTable";
-
+import { getMessages } from "@/data";
+import MessageTable from "./component/message-table";
+  
 export const metadata = {
-  title: 'Coupon',
+  title: 'Message',
 }
 
 export default async function CouponsPage() {
-  const products = await getOrders()
+    const messages = await getMessages()
 
   return (
       <div className="mx-auto">
@@ -43,7 +43,7 @@ export default async function CouponsPage() {
                   </Link>
               </Button>
           </div>
-          <CouponsTable products={products}/>
+          < MessageTable messages={messages}/>
       </div>
 
   )

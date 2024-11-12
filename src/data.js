@@ -6,6 +6,259 @@ export async function getRecentOrders() {
   return (await getOrders()).slice(0, 10)
 }
 
+
+export async function getCategory() {
+  return [
+    {
+      "id": 1,
+      "sortOrder": 10,
+      "categoryName": "日用百货",
+      "productQuantity": 100,
+      "show": true,
+      "createTime": "2021-02-28 10:30"
+    },
+    {
+      "id": 2,
+      "sortOrder": 20,
+      "categoryName": "电子产品",
+      "productQuantity": 50,
+      "show": false,
+      "createTime": "2021-03-05 14:00"
+    },
+    {
+      "id": 3,
+      "sortOrder": 30,
+      "categoryName": "家具",
+      "productQuantity": 75,
+      "show": true,
+      "createTime": "2021-03-15 09:20"
+    }
+  ]
+}
+
+
+export async function getStock() {
+  return [
+    {
+      "id": 1,
+      "name": "Wireless Earbuds",
+      "image": "/events/bear-hug-thumb.jpg",
+      "specs": "Bluetooth 5.0, Noise Cancelling",
+      "remainingStock": 120,
+      "totalOutbound": 80,
+      "createTime": "2024-03-10 15:30",
+      "stockAlert": false
+    },
+    {
+      "id": 2,
+      "name": "Smartphone Case",
+      "image": "/events/bear-hug-thumb.jpg",
+      "specs": "Silicone, Shockproof",
+      "remainingStock": 25,
+      "totalOutbound": 150,
+      "createTime": "2024-01-15 09:45",
+      "stockAlert": true
+    },
+    {
+      "id": 3,
+      "name": "USB-C Charger",
+      "image": "/events/bear-hug-thumb.jpg",
+      "specs": "20W Fast Charge",
+      "remainingStock": 200,
+      "totalOutbound": 100,
+      "createTime": "2024-02-20 18:20",
+      "stockAlert": false
+    }
+  ]
+}
+export async function getCoupons() {
+  return [
+    {
+      "couponName": "3折优惠",
+      "discountType": "百分比",
+      "discountAmount": "-30%",
+      "usageRules": "最高减少10元",
+      "applicableScope": "所有商品",
+      "claimedQuantity": 1000,
+      "usedQuantity": 500,
+      "status": "进行中",
+      "creationTime": "2024.08.01"
+    },
+    {
+      "couponName": "满20减10元",
+      "discountType": "金额",
+      "discountAmount": "-¥10",
+      "usageRules": "满20元以上",
+      "applicableScope": "干锅类：麻辣干锅，特价干锅",
+      "claimedQuantity": 1000,
+      "usedQuantity": 500,
+      "status": "已结束",
+      "creationTime": "2024.08.01"
+    },
+    {
+      "couponName": "免费奶茶",
+      "discountType": "商品兑换",
+      "discountAmount": "无",
+      "usageRules": "无",
+      "applicableScope": "奶茶类：特质奶茶",
+      "claimedQuantity": 1000,
+      "usedQuantity": 500,
+      "status": "已结束",
+      "creationTime": "2024.08.01"
+    }
+  ]
+}
+
+export async function getPaidCoupons() {
+  return [
+    {
+      "couponName": "10元付费优惠券",
+      "type": "付费优惠券",
+      "usableProducts": "白菜，茼蒿",
+      "quantity": 1000,
+      "faceValue": "10.00元",
+      "purchaseCount": 500,
+      "usageCount": 500
+    },
+    {
+      "couponName": "10元付费优惠券",
+      "type": "付费优惠券",
+      "usableProducts": "娃娃菜",
+      "quantity": 1000,
+      "faceValue": "10.00元",
+      "purchaseCount": 500,
+      "usageCount": 500
+    }
+  ]
+}
+
+export async function getCashbackUsers() {
+  return [
+    {
+      "userNumber": "BZ152654",
+      "username": "王某某",
+      "userPhone": "17595584585", 
+      "userEmail": "17595584585@gmail.com",
+      "cashbackPoints": 2000
+    },
+    {
+      "userNumber": "BZ152654",
+      "username": "王某某",
+      "userPhone": "17595584585",
+      "userEmail": "17595584585@gmail.com", 
+      "cashbackPoints": 2000
+    },
+    {
+      "userNumber": "BZ152654",
+      "username": "王某某",
+      "userPhone": "17595584585",
+      "userEmail": "17595584585@gmail.com",
+      "cashbackPoints": 2000
+    }
+  ]
+}
+
+export async function getStoredValueOrders() {
+  return [
+    {
+      "orderId": "BZ152654",
+      "userId": "BZ152654", 
+      "username": "王某某",
+      "contactMethod": "17595584585",
+      "storedAmount": 2000,
+      "giftAmount": 2000,
+      "orderTime": "10/20/2021"
+    },
+    {
+      "orderId": "BZ152654",
+      "userId": "BZ152654",
+      "username": "王某某", 
+      "contactMethod": "17595584585@gmail.com",
+      "storedAmount": 2000,
+      "giftAmount": 2000,
+      "orderTime": "10/20/2021"
+    },
+    {
+      "orderId": "BZ152654",
+      "userId": "BZ152654",
+      "username": "王某某",
+      "contactMethod": "17595584585",
+      "storedAmount": 2000,
+      "giftAmount": 2000,
+      "orderTime": "10/20/2021"
+    }
+  ]
+}
+
+
+export async function getMessages() {
+  return [
+    {
+      "title": "消息预览名称文字",
+      "sendMethod": "App内置",
+      "relatedCoupon": "优惠券1",
+      "users": "全体用户",
+      "pushStatus": "已推送",
+      "publishTime": "2024-10-16 16:14",
+      "pushCount": 500
+    },
+    {
+      "title": "消息预览名称文字",
+      "sendMethod": "邮箱",
+      "relatedCoupon": "指定用户",
+      "users": "未推送",
+      "pushStatus": "未推送",
+      "publishTime": "--",
+      "pushCount": 27
+    },
+    {
+      "title": "消息预览名称文字",
+      "sendMethod": "邮箱",
+      "relatedCoupon": "优惠券1",
+      "users": "会员用户",
+      "pushStatus": "已推送",
+      "publishTime": "2024-10-16 16:14",
+      "pushCount": 500
+    }
+  ]
+}
+export async function getActivity() {
+  return [
+    {
+      "activityName": "超级特卖",
+      "activityProduct": "海南芒果",
+      "startTime": "2024.11.01",
+      "endTime": "2024.11.30",
+      "currentDiscount": "75折",
+      "status": "待开始"
+    },
+    {
+      "activityName": "限时抢购",
+      "activityProduct": "进口车厘子",
+      "startTime": "2024.12.01",
+      "endTime": "2024.12.07",
+      "currentDiscount": "6折",
+      "status": "进行中"
+    },
+    {
+      "activityName": "周末大促",
+      "activityProduct": "本地草莓",
+      "startTime": "2024.01.01",
+      "endTime": "2024.01.03",
+      "currentDiscount": "9折",
+      "status": "已结束"
+    },
+    {
+      "activityName": "节日盛典",
+      "activityProduct": "精选葡萄酒",
+      "startTime": "2024.02.14",
+      "endTime": "2024.02.16",
+      "currentDiscount": "8折",
+      "status": "待开始"
+    }
+  ]
+}
+
 export async function getOrders() {
   return [
     {
@@ -187,6 +440,9 @@ export async function getOrders() {
     // Add more orders with similar structure...
   ];
 }
+
+
+
 
 export async function getEvent(id) {
   return (await getEvents()).find((event) => event.id.toString() === id)
