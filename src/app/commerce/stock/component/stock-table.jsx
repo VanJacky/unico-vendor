@@ -10,7 +10,7 @@ import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from "@/componen
 import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
 
-export default function StockTable({ stocks }) {
+export default function ProductsTable({ products }) {
     const [expandedRows, setExpandedRows] = useState({});
     const [selectedTab, setSelectedTab] = useState('All');
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -68,7 +68,7 @@ export default function StockTable({ stocks }) {
                         value={selectedTab}
                         onChange={(e) => handleTabChange(e.target.value)}
                     >
-                        {['All', 'Stock Alert'].map((tab) => (
+                        {['All', 'Active', 'Inactive'].map((tab) => (
                             <option key={tab} value={tab}>
                                 {tab}
                             </option>
