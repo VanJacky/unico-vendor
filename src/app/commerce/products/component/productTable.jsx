@@ -46,11 +46,11 @@ export default function ProductsTable({ products }) {
         setIndeterminate(false);
     };
 
-    const toggleProduct = (order) => {
+    const toggleProduct = (product) => {
         setSelectedProducts((prevSelected) =>
-            prevSelected.includes(order)
-                ? prevSelected.filter((p) => p.id !== order.id)
-                : [...prevSelected, order]
+            prevSelected.includes(product)
+                ? prevSelected.filter((p) => p.id !== product.id)
+                : [...prevSelected, product]
         );
     };
 
@@ -101,10 +101,10 @@ export default function ProductsTable({ products }) {
                     {selectedProducts.length > 0 && (
                         <div className="flex space-x-2">
                             <Button className="bg-white text-white px-4 py-2 rounded">
-                                Bulk Publish
+                                批量上架
                             </Button>
                             <Button className="bg-white text-white px-4 py-2 rounded">
-                                Bulk Unpublish
+                                批量下架
                             </Button>
                         </div>
                     )}
@@ -122,70 +122,73 @@ export default function ProductsTable({ products }) {
                                 />
                             </TableHeader>
                             <TableHeader>Id</TableHeader>
-                            <TableHeader>Name</TableHeader>
-                            <TableHeader>Image</TableHeader>
+                            <TableHeader className="text-center">Title</TableHeader>
+                            <TableHeader>Picure</TableHeader>
                             <TableHeader>Specs</TableHeader>
-                            <TableHeader>Amount</TableHeader>
+                            <TableHeader>Price</TableHeader>
                             <TableHeader>Category</TableHeader>
-                            <TableHeader>Sales</TableHeader>
-
-                            <TableHeader>Create date</TableHeader>
+                            <TableHeader>Sold</TableHeader>
+                            <TableHeader>CreateTime</TableHeader>
                             <TableHeader>Status</TableHeader>
                             <TableHeader>Action</TableHeader>
-                            {/*<TableHeader></TableHeader>*/}
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((order) => (
-                            <React.Fragment key={order.id}>
+                        {products.map((product) => (
+                            <React.Fragment key={product.id}>
                                 <TableRow
                                     className={classNames(
                                         'cursor-pointer',
-                                        selectedProducts.includes(order) ? 'bg-gray-50' : ''
+                                        selectedProducts.includes(product) ? 'bg-gray-50' : ''
                                     )}
-                                    onClick={() => toggleExpand(order.id)}
+                                    onClick={() => toggleExpand(product.id)}
                                 >
                                     <TableCell className="relative">
-                                        {selectedProducts.includes(order) && (
+                                        {selectedProducts.includes(product) && (
                                             <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
                                         )}
                                         <input
                                             type="checkbox"
                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                            checked={selectedProducts.includes(order)}
-                                            onChange={() => toggleProduct(order)}
+                                            checked={selectedProducts.includes(product)}
+                                            onChange={() => toggleProduct(product)}
                                         />
                                     </TableCell>
-                                    <TableCell>{order.id}</TableCell>
-                                    <TableCell>{order.event.name}</TableCell>
-
+                                    <TableCell>{product.id}</TableCell>
+                                    <TableCell  >{product.title}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center">
-                                            {/*<Avatar src={order.event.thumbUrl} className="size-6"/>*/}
-                                            <img
-                                                className="h-15 w-15  bg-gray-800"
-                                                src={order.event.thumbUrl}
-                                                alt=""
-                                            />
-                                            {/*<span>{order.event.name}</span>*/}
+                                            <div
+                                                className="group relative cursor-pointer"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <img
+                                                    className="h-20 w-20 object-cover rounded hover:opacity-80 transition-opacity"
+                                                    src={product.mainPic}
+                                                    alt={product.title}
+                                                />
+                                                <div className="hidden group-hover:block absolute z-50 -right-[300px] top-0">
+                                                    <img
+                                                        className="max-w-[300px] max-h-[300px] object-contain bg-white shadow-lg rounded"
+                                                        src={product.mainPic}
+                                                        alt={product.title}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{order.customer.country}</TableCell>
-
-                                    <TableCell>{order.amount.usd}</TableCell>
-
-                                    <TableCell>{order.customer.country}</TableCell>
-                                    <TableCell>{order.payment.card.number}</TableCell>
-
-                                    <TableCell className="text-zinc-500">{order.date}</TableCell>
-
+                                    <TableCell>{product.specs || '暂无规格'}</TableCell>
+                                    <TableCell>¥{product.price}</TableCell>
+                                    <TableCell>{product.typeName}</TableCell>
+                                    <TableCell>{product.sold}</TableCell>
+                                    <TableCell className="text-zinc-500">{product.createTime}</TableCell>
                                     <TableCell>
                                         <Badge
-                                                className="max-sm:hidden"
-                                                color={order.status === 'Completed' ? 'lime' : 'zinc'}
-                                            >
-                                                {order.status}
-                                            </Badge>
+                                            className="max-sm:hidden"
+                                            color={product.status === 1 ? 'lime' : 'zinc'}
+                                        >
+                                            {product.status === 1 ? '上架' : '下架'}
+                                        </Badge>
                                     </TableCell>
                                     <TableCell>
                                         <div className="-mx-3 -my-1.5 sm:-mx-2.5">
@@ -194,11 +197,10 @@ export default function ProductsTable({ products }) {
                                                     <EllipsisHorizontalIcon />
                                                 </DropdownButton>
                                                 <DropdownMenu anchor="bottom end">
-
                                                     <DropdownItem>
-                                                        <a href={`/commerce${order.url}`} title={`Order #${order.id}`} className="block w-full h-full">
+                                                        <Link href={`/commerce/products/${product.id}`}>
                                                             View
-                                                        </a>
+                                                        </Link>
                                                     </DropdownItem>
                                                     <DropdownItem>Edit</DropdownItem>
                                                     <DropdownItem>Delete</DropdownItem>
@@ -206,7 +208,6 @@ export default function ProductsTable({ products }) {
                                             </Dropdown>
                                         </div>
                                     </TableCell>
-
                                 </TableRow>
                             </React.Fragment>
                         ))}

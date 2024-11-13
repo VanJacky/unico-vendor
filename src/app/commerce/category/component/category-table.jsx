@@ -28,31 +28,28 @@ export default function CategoryTable({ category }) {
                     <TableHead>
                         <TableRow>
                             <TableHeader>ID</TableHeader>
-                            <TableHeader>Category Name</TableHeader>
-                             <TableHeader>Product Quantity</TableHeader>
+                            <TableHeader>Name</TableHeader>
+                            <TableHeader>Sort</TableHeader>
+                            <TableHeader>Product Quantity</TableHeader>
                             <TableHeader>Create Date</TableHeader>
-                            <TableHeader>Show/Hide</TableHeader>
+                            <TableHeader>Status</TableHeader>
                             <TableHeader className="relative w-0">
                                 <span className="sr-only">Actions</span>
                             </TableHeader>
-
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {category.map((ca) => (
                             <React.Fragment key={ca.id}>
-                                <TableRow className="cursor-pointer"  >
-
+                                <TableRow className="cursor-pointer">
                                     <TableCell>{ca.id}</TableCell>
-                                    <TableCell>{ca.categoryName}</TableCell>
-                                    <TableCell>{ca.productQuantity}</TableCell>
-
+                                    <TableCell>{ca.name}</TableCell>
+                                    <TableCell>{ca.sortNum}</TableCell>
+                                    <TableCell>-</TableCell>
                                     <TableCell className="text-zinc-500">{ca.createTime}</TableCell>
                                     <TableCell>
-                                        <Switch aria-label="Allow show" name="show" value={ca.show}/>
+                                        <Switch aria-label="Allow show" name="status" value={ca.status === 1}/>
                                     </TableCell>
-
-                                    {/*<TableCell className="text-right">US{order.amount.usd}</TableCell>*/}
                                     <TableCell>
                                         <div className="-mx-3 -my-1.5 sm:-mx-2.5">
                                             <Dropdown>
@@ -61,22 +58,21 @@ export default function CategoryTable({ category }) {
                                                 </DropdownButton>
                                                 <DropdownMenu anchor="bottom end">
                                                     <DropdownItem>
-                                                        <a href={`/commerce${ca.url}`} title={`Order #${ca.id}`}
-                                                           className="block w-full h-full">
+                                                        <Link href={`/commerce/category/view/${ca.id}`}>
                                                             View
-                                                        </a>
-
-
+                                                        </Link>
                                                     </DropdownItem>
-                                                    <DropdownItem>Edit</DropdownItem>
+                                                    <DropdownItem>
+                                                        <Link href={`/commerce/category/edit/${ca.id}`}>
+                                                            Edit
+                                                        </Link>
+                                                    </DropdownItem>
                                                     <DropdownItem>Delete</DropdownItem>
                                                 </DropdownMenu>
                                             </Dropdown>
                                         </div>
                                     </TableCell>
-
                                 </TableRow>
-
                             </React.Fragment>
                         ))}
                     </TableBody>
