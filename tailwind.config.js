@@ -1,4 +1,6 @@
 const config = {
+  darkMode: [], // 这样设置可以完全禁用 darkMode
+
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
