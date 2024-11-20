@@ -37,7 +37,7 @@ export default function OrderTable({ orders }) {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-    const [qrCodeVisible, setQrCodeVisible] = useState(false);
+    const [cameraActive, setCameraActive] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredUsers, setFilteredUsers] = useState([]);
 
@@ -65,7 +65,7 @@ export default function OrderTable({ orders }) {
     };
 
     const handleImmediatePayment = () => {
-        setQrCodeVisible(true);
+        setCameraActive(true);
     };
 
     // Add search handler
@@ -228,11 +228,14 @@ export default function OrderTable({ orders }) {
                 </Table>
             </div>
 
-            <Dialog open={showPaymentDialog} onClose={() => setShowPaymentDialog(false)} size="md">
+            <Dialog open={showPaymentDialog} onClose={() => {
+                setShowPaymentDialog(false);
+                setCameraActive(false);
+            }} size="md">
                 <DialogTitle>Complete Order Creation</DialogTitle>
                 <DialogBody>
                     <div className="space-y-6">
-                        {!qrCodeVisible ? (
+                        {!cameraActive ? (
                             <div className="space-y-4">
                                 <Button 
                                     className="w-full" 
@@ -250,17 +253,14 @@ export default function OrderTable({ orders }) {
                         ) : (
                             <div className="text-center space-y-4">
                                 <div className="mx-auto w-64 h-64 bg-gray-100 flex items-center justify-center">
-                                    {/* Placeholder QR Code - Replace with actual QR code component */}
-                                    <div className="w-48 h-48 bg-white p-4">
-                                        <img 
-                                            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=" 
-                                            alt="Payment QR Code"
-                                            className="w-full h-full"
-                                        />
-                                    </div>
+                                    <video 
+                                        id="camera-feed"
+                                        autoPlay 
+                                        playsInline
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
-                                <p className="text-gray-600">Scan QR code to complete payment</p>
-                                <p className="text-xl font-bold">$99.99</p>
+                                <p className="text-gray-600">请扫描顾客的付款码</p>
                             </div>
                         )}
                     </div>
@@ -268,7 +268,7 @@ export default function OrderTable({ orders }) {
                 <DialogActions>
                     <Button plain onClick={() => {
                         setShowPaymentDialog(false);
-                        setQrCodeVisible(false);
+                        setCameraActive(false);
                     }}>
                         Close
                     </Button>

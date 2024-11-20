@@ -17,7 +17,7 @@ import { Select } from '@/components/select';
 import { getCategoryWithTypes } from '../api/actions';
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
-
+import { updateCategory, addCategory, deleteCategories } from '../api/actions';
 
 // Add LoadingOverlay component
 const LoadingOverlay = () => (
@@ -43,10 +43,11 @@ export default function CategoryTable() {
         sortNum: 0,
         status: 1
     });
+    const [refresh, setRefresh] = useState(0);
 
     useEffect(() => {
         loadCategories();
-    }, []);
+    }, [refresh]);
 
     const loadCategories = async () => {
         try {
@@ -87,6 +88,39 @@ export default function CategoryTable() {
         setIsDialogOpen(false);
         setIsEditing(false);
         setNewCategory({ id: null, name: '', sortNum: 0, status: 1 });
+    };
+
+    const handleSaveCategory = async () => {
+        try {
+            closeDialog();
+            setIsLoading(true);
+            
+            if (isEditing) {
+                await updateCategory(newCategory);
+            } else {
+                const response = await addCategory(newCategory);
+                console.log('新增分类响应:', response);
+            }
+            
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error('保存分类失败:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            setIsLoading(true);
+            await deleteCategories(categoryId);
+            // 删除后刷新列表
+            await loadCategories();
+        } catch (error) {
+            console.error('删除分类失败:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -160,7 +194,9 @@ export default function CategoryTable() {
                                                     <DropdownItem onClick={() => handleEditCategory(ca)}>
                                                         Edit
                                                     </DropdownItem>
-                                                    <DropdownItem>Delete</DropdownItem>
+                                                    <DropdownItem onClick={() => handleDeleteCategory(ca.id)}>
+                                                        Delete
+                                                    </DropdownItem>
                                                 </DropdownMenu>
                                             </Dropdown>
                                         </div>
@@ -201,17 +237,14 @@ export default function CategoryTable() {
                             <Label>Status</Label>
                             <Switch
                                 checked={newCategory.status === 1}
-                                onChange={(checked) => setNewCategory({...newCategory, status: checked ? 1 : 0})}
+                                onChange={(checked) => setNewCategory({ ...newCategory, status: checked ? 1 : 0 })}
                             />
                         </SwitchField>
                     </Field>
                 </DialogBody>
                 <DialogActions>
-                    <Button plain onClick={closeDialog}>Cancel</Button>
-                    <Button onClick={() => {
-                        // TODO: Implement save logic
-                        closeDialog();
-                    }}>Save</Button>
+                    <Button plain onClick={closeDialog}>取消</Button>
+                    <Button onClick={handleSaveCategory}>保存</Button>
                 </DialogActions>
             </Dialog>
         </main>
