@@ -73,7 +73,6 @@ export function SidebarHeading({ className, ...props }) {
 
 export const SidebarItem = React.forwardRef(function SidebarItem(
   { current, className, children, ...props },
-
   ref
 ) {
   let classes = clsx(
@@ -81,21 +80,21 @@ export const SidebarItem = React.forwardRef(function SidebarItem(
     'flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-zinc-950 sm:py-2 sm:text-sm/5',
     // Leading icon/icon-only
     'data-[slot=icon]:*:size-6 data-[slot=icon]:*:shrink-0 data-[slot=icon]:*:fill-zinc-500 sm:data-[slot=icon]:*:size-5',
-    // Trailing icon (down chevron or similar)
+    // Trailing icon
     'data-[slot=icon]:last:*:ml-auto data-[slot=icon]:last:*:size-5 sm:data-[slot=icon]:last:*:size-4',
     // Avatar
     'data-[slot=avatar]:*:-m-0.5 data-[slot=avatar]:*:size-7 data-[slot=avatar]:*:[--ring-opacity:10%] sm:data-[slot=avatar]:*:size-6',
     // Hover
     'data-[hover]:bg-zinc-950/5 data-[slot=icon]:*:data-[hover]:fill-zinc-950',
     // Active
-    'data-[active]:bg-zinc-950/5 data-[slot=icon]:*:data-[active]:fill-zinc-950',
-    // Current
-    'data-[slot=icon]:*:data-[current]:fill-zinc-950',
+    'data-[active]:bg-gray-100 data-[active]:text-blue-600 data-[slot=icon]:*:data-[active]:fill-blue-600',
+    // Current - 添加新样式但保留原样式
+    current && 'bg-gray-100 text-blue-600 data-[slot=icon]:*:fill-blue-600',
     // Dark mode
     'dark:text-white dark:data-[slot=icon]:*:fill-zinc-400',
     'dark:data-[hover]:bg-white/5 dark:data-[slot=icon]:*:data-[hover]:fill-white',
-    'dark:data-[active]:bg-white/5 dark:data-[slot=icon]:*:data-[active]:fill-white',
-    'dark:data-[slot=icon]:*:data-[current]:fill-white'
+    // Dark mode current
+    current && 'dark:bg-white/10 dark:text-blue-400 dark:data-[slot=icon]:*:fill-blue-400'
   )
 
   return (

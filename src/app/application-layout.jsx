@@ -36,6 +36,8 @@ import YDIcon from "@/utils/yd-icon";
 
 const navItems = [
     { label: 'Dashboard', key: 'dashboard', url: '/dashboard', icon: '/icons/dash.svg' },
+    { label: 'Users', key: 'users', url: '/users/list', icon: '/icons/users.svg' },
+
     { label: 'Marketing', key: 'marketing', url: '/marketing/coupon', icon: '/icons/market.svg' },
     { label: 'E-commerce', key: 'commerce', url: '/commerce/orders', icon: '/icons/myshop.svg' },
     { label: 'Booking', key: 'booking', url: '/booking/calender', icon: '/icons/book.svg' },
@@ -46,7 +48,7 @@ const navItems = [
 
 export function ApplicationLayout({ events, children }) {
     let pathname = usePathname()
-    
+
     // 新增：根据URL路径自动判断当前激活的导航项
     const getActiveNav = () => {
         const basePath = pathname.split('/')[1];
@@ -77,6 +79,15 @@ export function ApplicationLayout({ events, children }) {
                     </SidebarItem>
                     <SidebarItem href="/dashboard/tab2" current={pathname === '/dashboard/tab2'}>
                         <SidebarLabel>Dashboard Tab 2</SidebarLabel>
+                    </SidebarItem>
+                </>
+            );
+        } else if (activeNav === 'users') {
+            return (
+                <>
+                    <SidebarItem href="/users/list" current={pathname === '/users/list'}>
+                        <YDIcon src="/icons/usermanager.svg" alt="User List Icon" />
+                        <SidebarLabel>User List</SidebarLabel>
                     </SidebarItem>
                 </>
             );

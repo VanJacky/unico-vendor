@@ -9,9 +9,37 @@ import {Badge} from "@/components/badge";
 import {Dropdown, DropdownButton, DropdownItem, DropdownMenu} from "@/components/dropdown";
 import {EllipsisHorizontalIcon} from "@heroicons/react/16/solid";
 import {Link} from "@/components/link";
+import {Heading} from "@/components/heading";
+import {Input, InputGroup} from "@/components/input";
+import {MagnifyingGlassIcon} from "@heroicons/react/16/solid";
+import {Select} from "@/components/select";
+import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
+import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
+
+// Add mock data
+const mockUsers = [
+    { id: 1, name: "John Smith", email: "john@example.com", phone: "+1 234-567-8900" },
+    { id: 2, name: "Emma Wilson", email: "emma@example.com", phone: "+1 234-567-8901" },
+    { id: 3, name: "Michael Brown", email: "michael@example.com", phone: "+1 234-567-8902" },
+    { id: 4, name: "Sarah Davis", email: "sarah@example.com", phone: "+1 234-567-8903" }
+];
+
+const mockProducts = [
+    { id: 1, name: "Premium Membership", price: 99.99 },
+    { id: 2, name: "Basic Package", price: 49.99 },
+    { id: 3, name: "Gold Subscription", price: 199.99 },
+    { id: 4, name: "VIP Access Pass", price: 299.99 }
+];
 
 export default function OrderTable({ orders }) {
     const [expandedRows, setExpandedRows] = useState({});
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+    const [qrCodeVisible, setQrCodeVisible] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredUsers, setFilteredUsers] = useState([]);
 
     const toggleExpand = (orderId) => {
         setExpandedRows((prev) => ({
@@ -28,8 +56,54 @@ export default function OrderTable({ orders }) {
         return classes.filter(Boolean).join(' ')
     }
 
+    const openDialog = () => setIsDialogOpen(true);
+    const closeDialog = () => setIsDialogOpen(false);
+
+    const handleOrderCreate = () => {
+        closeDialog();
+        setShowPaymentDialog(true);
+    };
+
+    const handleImmediatePayment = () => {
+        setQrCodeVisible(true);
+    };
+
+    // Add search handler
+    const handleUserSearch = (e) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+        
+        const filtered = mockUsers.filter(user => 
+            user.name.toLowerCase().includes(term.toLowerCase()) ||
+            user.email.toLowerCase().includes(term.toLowerCase()) ||
+            user.phone.includes(term)
+        );
+        setFilteredUsers(filtered);
+    };
+
     return (
         <main>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                <div className="max-sm:w-full sm:flex-1">
+                    <Heading>Orders</Heading>
+                    <div className="mt-4 flex max-w-xl gap-4">
+                        <div className="flex-1">
+                            <InputGroup>
+                                <MagnifyingGlassIcon/>
+                                <Input name="search" placeholder="Search orders&hellip;"/>
+                            </InputGroup>
+                        </div>
+                        <div>
+                            <Select name="sort_by">
+                                <option value="name">Sort by name</option>
+                                <option value="date">Sort by date</option>
+                                <option value="status">Sort by status</option>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+                <Button onClick={openDialog}>Create Order</Button>
+            </div>
             <div className="mt-7 py-2 sm:mt-7">
                 <div className="sm:hidden">
                     <label htmlFor="current-tab" className="sr-only">
@@ -153,6 +227,123 @@ export default function OrderTable({ orders }) {
                     </TableBody>
                 </Table>
             </div>
+
+            <Dialog open={showPaymentDialog} onClose={() => setShowPaymentDialog(false)} size="md">
+                <DialogTitle>Complete Order Creation</DialogTitle>
+                <DialogBody>
+                    <div className="space-y-6">
+                        {!qrCodeVisible ? (
+                            <div className="space-y-4">
+                                <Button 
+                                    className="w-full" 
+                                    onClick={handleImmediatePayment}
+                                >
+                                    Immediate Payment
+                                </Button>
+                                <Button 
+                                    className="w-full" 
+                                    onClick={() => setShowPaymentDialog(false)}
+                                >
+                                    Create Only
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="text-center space-y-4">
+                                <div className="mx-auto w-64 h-64 bg-gray-100 flex items-center justify-center">
+                                    {/* Placeholder QR Code - Replace with actual QR code component */}
+                                    <div className="w-48 h-48 bg-white p-4">
+                                        <img 
+                                            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=" 
+                                            alt="Payment QR Code"
+                                            className="w-full h-full"
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-gray-600">Scan QR code to complete payment</p>
+                                <p className="text-xl font-bold">$99.99</p>
+                            </div>
+                        )}
+                    </div>
+                </DialogBody>
+                <DialogActions>
+                    <Button plain onClick={() => {
+                        setShowPaymentDialog(false);
+                        setQrCodeVisible(false);
+                    }}>
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={isDialogOpen} onClose={closeDialog} size="5xl">
+                <DialogTitle>Create Order</DialogTitle>
+                <DialogDescription>
+                    Please fill in the order information
+                </DialogDescription>
+                <DialogBody>
+                    <div className="space-y-6">
+                        <Field>
+                            <Label>Select User</Label>
+                            <InputGroup>
+                                <MagnifyingGlassIcon/>
+                                <Input 
+                                    name="user_search" 
+                                    placeholder="Search users by name, email, or phone..."
+                                    value={searchTerm}
+                                    onChange={handleUserSearch}
+                                />
+                            </InputGroup>
+                            {searchTerm && filteredUsers.length > 0 && (
+                                <div className="mt-2 border rounded-md shadow-sm">
+                                    {filteredUsers.map(user => (
+                                        <div 
+                                            key={user.id}
+                                            className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                                            onClick={() => {
+                                                setSelectedUser(user);
+                                                setSearchTerm(user.name);
+                                            }}
+                                        >
+                                            <div className="font-medium">{user.name}</div>
+                                            <div className="text-sm text-gray-500">{user.email}</div>
+                                            <div className="text-sm text-gray-500">{user.phone}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </Field>
+
+                        <Field>
+                            <Label>Select Product</Label>
+                            <Select 
+                                name="product"
+                                value={selectedProduct}
+                                onChange={(e) => setSelectedProduct(e.target.value)}
+                            >
+                                <option value="">Please select a product</option>
+                                {mockProducts.map(product => (
+                                    <option key={product.id} value={product.id}>
+                                        {product.name} - ${product.price}
+                                    </option>
+                                ))}
+                            </Select>
+                        </Field>
+
+                        <Field>
+                            <Label>Distribution Method</Label>
+                            <Select name="distribution">
+                                <option value="p">Self Pick-up</option>
+                                <option value="e">Manual Distribution</option>
+                                <option value="b">Auto Distribution for New Users</option>
+                            </Select>
+                        </Field>
+                    </div>
+                </DialogBody>
+                <DialogActions>
+                    <Button plain onClick={closeDialog}>Cancel</Button>
+                    <Button onClick={handleOrderCreate}>Save</Button>
+                </DialogActions>
+            </Dialog>
 
         </main>
 
