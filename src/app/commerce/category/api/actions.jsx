@@ -12,7 +12,7 @@ export async function getCategoryWithTypes() {
           return item.parentId === null;
         });
         // 打印
-        console.log('顶级分类列表：', typeList);
+        // console.log('顶级分类列表：', typeList);
         return typeList;
     } catch (error) {
         console.log('获取分类列表时出错:', error);

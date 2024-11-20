@@ -9,12 +9,15 @@ import { Badge } from "@/components/badge";
 import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from "@/components/dropdown";
 import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
-import { Switch } from "@/components/switch";
+import { Switch, SwitchField } from "@/components/switch";
 import { Heading } from '@/components/heading';
 import { Input, InputGroup } from '@/components/input';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Select } from '@/components/select';
 import { getCategoryWithTypes } from '../api/actions';
+import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
+import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
+
 
 // Add LoadingOverlay component
 const LoadingOverlay = () => (
@@ -32,6 +35,14 @@ const LoadingOverlay = () => (
 export default function CategoryTable() {
     const [category, setCategory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [newCategory, setNewCategory] = useState({
+        id: null,
+        name: '',
+        sortNum: 0,
+        status: 1
+    });
 
     useEffect(() => {
         loadCategories();
@@ -41,9 +52,8 @@ export default function CategoryTable() {
         try {
             setIsLoading(true);
             const response = await getCategoryWithTypes();
-            if (response.success) {
-                setCategory(response.data || []);
-            }
+            console.log('Response received:', response);
+            setCategory(Array.isArray(response) ? response : []);
         } catch (error) {
             console.error('获取分类失败:', error);
         } finally {
@@ -51,11 +61,39 @@ export default function CategoryTable() {
         }
     };
 
+    const handleCreateCategory = () => {
+        setIsEditing(false);
+        setNewCategory({
+            id: null,
+            name: '',
+            sortNum: 0,
+            status: 1
+        });
+        setIsDialogOpen(true);
+    };
+
+    const handleEditCategory = (category) => {
+        setIsEditing(true);
+        setNewCategory({
+            id: category.id,
+            name: category.name,
+            sortNum: category.sortNum,
+            status: category.status
+        });
+        setIsDialogOpen(true);
+    };
+
+    const closeDialog = () => {
+        setIsDialogOpen(false);
+        setIsEditing(false);
+        setNewCategory({ id: null, name: '', sortNum: 0, status: 1 });
+    };
+
     return (
         <main>
             {/* Global loading overlay */}
             {isLoading && <LoadingOverlay />}
-            
+
             <div className="mx-auto">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div className="max-sm:w-full sm:flex-1">
@@ -76,10 +114,8 @@ export default function CategoryTable() {
                             </div>
                         </div>
                     </div>
-                    <Button>
-                        <Link href='/commerce/category/edit'>
-                            Create Category
-                        </Link>
+                    <Button onClick={handleCreateCategory}>
+                        Create Category
                     </Button>
                 </div>
 
@@ -121,10 +157,8 @@ export default function CategoryTable() {
                                                             View
                                                         </Link>
                                                     </DropdownItem>
-                                                    <DropdownItem>
-                                                        <Link href={`/commerce/category/edit/${ca.id}`}>
-                                                            Edit
-                                                        </Link>
+                                                    <DropdownItem onClick={() => handleEditCategory(ca)}>
+                                                        Edit
                                                     </DropdownItem>
                                                     <DropdownItem>Delete</DropdownItem>
                                                 </DropdownMenu>
@@ -137,6 +171,49 @@ export default function CategoryTable() {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Add Create Category Dialog */}
+            <Dialog open={isDialogOpen} onClose={closeDialog}>
+                <DialogTitle>{isEditing ? 'Edit Category' : 'Create Category'}</DialogTitle>
+                <DialogDescription>
+                    Please fill in the category information
+                </DialogDescription>
+                <DialogBody>
+                    <Field className="mb-4">
+                        <Label>Category Name</Label>
+                        <Input
+                            value={newCategory.name}
+                            onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                            placeholder="Please enter the category name"
+                        />
+                    </Field>
+                    <Field className="mb-4">
+                        <Label>Sort</Label>
+                        <Input
+                            type="number"
+                            value={newCategory.sortNum}
+                            onChange={(e) => setNewCategory({ ...newCategory, sortNum: parseInt(e.target.value) })}
+                            placeholder="Please enter the sort number"
+                        />
+                    </Field>
+                    <Field className="flex items-center gap-4">
+                        <SwitchField>
+                            <Label>Status</Label>
+                            <Switch
+                                checked={newCategory.status === 1}
+                                onChange={(checked) => setNewCategory({...newCategory, status: checked ? 1 : 0})}
+                            />
+                        </SwitchField>
+                    </Field>
+                </DialogBody>
+                <DialogActions>
+                    <Button plain onClick={closeDialog}>Cancel</Button>
+                    <Button onClick={() => {
+                        // TODO: Implement save logic
+                        closeDialog();
+                    }}>Save</Button>
+                </DialogActions>
+            </Dialog>
         </main>
     );
 }
