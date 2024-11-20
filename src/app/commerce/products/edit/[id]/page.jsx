@@ -1,14 +1,11 @@
-
 import EditProduct from "@/app/commerce/products/component/edit-product";
 
 export const metadata = {
     title: 'Edit Product',
 }
 
-export default async function EditProductPage() {
-    // const products = await getOrders()
-
+export default async function EditProductPage({ params }) {
     return (
-        <EditProduct/>
+        <EditProduct id={params.id} />
     )
-}
+} 

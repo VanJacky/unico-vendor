@@ -1,8 +1,23 @@
-
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
- import SelectProductCategory from "@/app/commerce/products/component/select-product-category";
+import SelectProductCategory from "@/app/commerce/products/component/select-product-category";
+import { useEffect, useState } from 'react';
+import { getProductById } from '@/lib/products';
 
-export default function EditProduct() {
+export default function EditProduct({ params }) {
+    const [product, setProduct] = useState({});
+
+    useEffect(() => {
+        const loadProductDetail = async () => {
+            if (params?.id) {
+                const productDetail = await getProductById(params.id);
+                console.log(productDetail);
+                setProduct(productDetail);
+            }
+        };
+        
+        loadProductDetail();
+    }, [params?.id]);
+
     return (
         <form>
             <div className="space-y-12">

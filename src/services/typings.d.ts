@@ -13,6 +13,10 @@ declare namespace API {
     remark?: string;
   };
 
+  type getGoodsDetailParams = {
+    goodsId: number;
+  };
+
   type AppFeedbackEntity = {
     id?: number;
     createTime?: string;

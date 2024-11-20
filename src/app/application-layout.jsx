@@ -21,32 +21,42 @@ import {
 } from '@/components/sidebar'
 import { StackedLayout } from '@/components/stacked-layout'
 import {
-     ChevronDownIcon, ChevronUpIcon, Cog6ToothIcon,
+    ChevronDownIcon, ChevronUpIcon, Cog6ToothIcon,
     Cog8ToothIcon, HomeIcon,
     LightBulbIcon,
     PlusIcon, QuestionMarkCircleIcon,
     ShieldCheckIcon, SparklesIcon, Square2StackIcon, TicketIcon,
     UserIcon,
 } from '@heroicons/react/16/solid'
-import {BellAlertIcon , MagnifyingGlassIcon} from '@heroicons/react/24/solid'
-import {usePathname} from "next/navigation";
-import {useState} from "react";
+import { BellAlertIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import YdIcon from "@/utils/yd-icon";
 import YDIcon from "@/utils/yd-icon";
 
 const navItems = [
-    { label: 'Dashboard', key: 'dashboard' , url: '/dashboard',icon: '/icons/dash.svg'},
-    { label: 'Marketing', key: 'marketing', url: '/marketing/coupon' ,icon: '/icons/market.svg'},
-    { label: 'E-commerce', key: 'commerce', url: '/commerce/orders',icon: '/icons/myshop.svg' },
-    { label: 'Booking', key: 'booking', url: '/booking/calender' ,icon: '/icons/book.svg'},
-    { label: 'Pop App', key: 'popApp', url: '' ,icon: '/icons/app.svg'},
-    { label: 'Financial', key: 'financial', url: '/financial/payment',icon: '/icons/finance.svg' },
+    { label: 'Dashboard', key: 'dashboard', url: '/dashboard', icon: '/icons/dash.svg' },
+    { label: 'Marketing', key: 'marketing', url: '/marketing/coupon', icon: '/icons/market.svg' },
+    { label: 'E-commerce', key: 'commerce', url: '/commerce/orders', icon: '/icons/myshop.svg' },
+    { label: 'Booking', key: 'booking', url: '/booking/calender', icon: '/icons/book.svg' },
+    { label: 'Pop App', key: 'popApp', url: '', icon: '/icons/app.svg' },
+    { label: 'Financial', key: 'financial', url: '/financial/payment', icon: '/icons/finance.svg' },
 
 ]
 
-export function ApplicationLayout({events, children}) {
+export function ApplicationLayout({ events, children }) {
     let pathname = usePathname()
-    const [activeNav, setActiveNav] = useState('dashboard'); // 控制当前激活的 Navbar 项目
+    
+    // 新增：根据URL路径自动判断当前激活的导航项
+    const getActiveNav = () => {
+        const basePath = pathname.split('/')[1];
+        const activeNav = navItems.find((item) => item.url.startsWith(`/${basePath}`));
+        return activeNav?.key || 'dashboard';
+    };
+
+    // 修改：使用getActiveNav()初始化状态
+    const [activeNav, setActiveNav] = useState(getActiveNav());
+
     // 当点击 Navbar 项目时切换 `Sidebar` 内容
     const handleNavClick = (key) => {
         if (key === 'popApp') {
@@ -62,10 +72,10 @@ export function ApplicationLayout({events, children}) {
         if (activeNav === 'dashboard') {
             return (
                 <>
-                    <SidebarItem href="/dashboard/tab1">
+                    <SidebarItem href="/testpages" current={pathname === '/testpages'}>
                         <SidebarLabel>Dashboard Tab 1</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/dashboard/tab2">
+                    <SidebarItem href="/dashboard/tab2" current={pathname === '/dashboard/tab2'}>
                         <SidebarLabel>Dashboard Tab 2</SidebarLabel>
                     </SidebarItem>
                 </>
@@ -73,14 +83,14 @@ export function ApplicationLayout({events, children}) {
         } else if (activeNav === 'financial') {
             return (
                 <>
-                    <SidebarItem href="/financial/payment">
+                    <SidebarItem href="/financial/payment" current={pathname === '/financial/payment'}>
                         <SidebarLabel>Payment</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/financial/settlement">
+                    <SidebarItem href="/financial/settlement" current={pathname === '/financial/settlement'}>
                         <SidebarLabel>Settlement</SidebarLabel>
                     </SidebarItem>
 
-                    <SidebarItem href="/financial/statement">
+                    <SidebarItem href="/financial/statement" current={pathname === '/financial/statement'}>
                         <SidebarLabel>Statement</SidebarLabel>
                     </SidebarItem>
                 </>
@@ -88,18 +98,18 @@ export function ApplicationLayout({events, children}) {
         } else if (activeNav === 'settings') {
             return (
                 <>
-                    <SidebarItem href="/settings/profile">
+                    <SidebarItem href="/settings/profile" current={pathname === '/settings/profile'}>
                         <SidebarLabel>Profile Settings</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/settings/security">
+                    <SidebarItem href="/settings/security" current={pathname === '/settings/security'}>
                         <SidebarLabel>Security Settings</SidebarLabel>
                     </SidebarItem>
                 </>
             );
-        }else if (activeNav === 'marketing') {
+        } else if (activeNav === 'marketing') {
             return (
                 <>
-                    <SidebarItem href="/marketing/coupon">
+                    <SidebarItem href="/marketing/coupon" current={pathname === '/marketing/coupon'}>
                         <YDIcon src="/icons/coupon.svg" alt="coupon Icon" />
 
                         <SidebarLabel>Coupons</SidebarLabel>
@@ -133,36 +143,35 @@ export function ApplicationLayout({events, children}) {
                     </SidebarItem>
                 </>
             );
-        }else if (activeNav === 'commerce') {
+        } else if (activeNav === 'commerce') {
             return (
                 <>
-                    <SidebarItem href="/commerce/orders">
+                    <SidebarItem href="/commerce/orders" current={pathname === '/commerce/orders'}>
                         <YDIcon src="/icons/order.svg" alt="orders Icon" />
                         <SidebarLabel>Orders</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/commerce/category">
+                    <SidebarItem href="/commerce/category" current={pathname === '/commerce/category'}>
                         <YDIcon src="/icons/category.svg" alt="categorys Icon" />
                         <SidebarLabel>Category</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/commerce/products">
+                    <SidebarItem href="/commerce/products" current={pathname === '/commerce/products'}>
                         <YDIcon src="/icons/product.svg" alt="product Icon" />
                         <SidebarLabel>Product</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/commerce/stock">
+                    <SidebarItem href="/commerce/stock" current={pathname === '/commerce/stock'}>
                         <YDIcon src="/icons/stock.svg" alt="stock Icon" />
-
                         <SidebarLabel>Stock</SidebarLabel>
                     </SidebarItem>
-                    <SidebarItem href="/commerce/shop">
+                    <SidebarItem href="/commerce/shop" current={pathname === '/commerce/shop'}>
                         <YDIcon src="/icons/shop.svg" alt="Store Icon" />
                         <SidebarLabel>Store</SidebarLabel>
                     </SidebarItem>
                 </>
             );
-        }else if (activeNav === 'booking') {
+        } else if (activeNav === 'booking') {
             return (
                 <>
-                    <SidebarItem href="/booking/calender">
+                    <SidebarItem href="/booking/calender" current={pathname === '/booking/calender'}>
                         <YDIcon src="/icons/calenders.svg" alt="calenders Icon" />
 
                         <SidebarLabel>Calender</SidebarLabel>
@@ -201,11 +210,12 @@ export function ApplicationLayout({events, children}) {
                         </Dropdown>
                         <NavbarDivider className="max-lg:hidden" />
                         <NavbarSection>
-                            {navItems.map(({ label, key, url,icon }) => (
+                            {navItems.map(({ label, key, url, icon }) => (
 
                                 <NavbarItem
                                     href={url}
                                     key={key}
+                                    current={activeNav === key}  // 新增：根据activeNav判断是否当前项
                                     onClick={() => handleNavClick(key)} // 只切换 `Sidebar`，不跳转
                                     className="whitespace-nowrap overflow-hidden text-ellipsis"
                                     style={{ maxWidth: '200px' }} // 可以根据需要调整最大宽度

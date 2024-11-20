@@ -18,7 +18,9 @@ export const API_PREFIX = "/api";
 export const API_BASE_URL = "https://ydwl.cloud/api";
 
 // export const API_BASE_URL = "http://127.0.0.1:10000";
-export const COMMON_BASE_URL = "https://mini.ak-team.cn/mall";
+// export const COMMON_BASE_URL = "https://mini.ak-team.cn/mall";
+export const COMMON_BASE_URL = "http://localhost:7788";
+
 export const MANAGER_BASE_URL = "https://ydwl.cloud/mg";
 export const API_TARGET_URL = "http://47.99.90.88:8889";
 export const COMMON_TARGET_URL = "http://47.99.90.88:8890";

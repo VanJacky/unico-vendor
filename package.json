@@ -1,5 +1,5 @@
 {
-  "name": "unico-shop",
+  "name": "unico-shop-admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -16,10 +16,12 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.6",
     "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21",
     "next": "14.2.3",
     "react": "^18.3.1",
     "react-dom": "^18",
     "react-router-dom": "^6.28.0",
+    "react-select": "^5.8.3",
     "zustand": "^5.0.1"
   },
   "devDependencies": {

@@ -11,6 +11,22 @@ export async function add16(options?: { [key: string]: any }) {
   });
 }
 
+
+/** 添加商品及规格信息 POST /admin/goods/info/addWithSpecs */
+export async function addGoodsWithSpecs(
+  body: API.GoodsInfoEntity,
+  options?: { [key: string]: any },
+) {
+  return request<API.JSONObject>(`${COMMON_BASE_URL}/admin/goods/info/addWithSpecs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 删除 支持批量删除 请求参数 ids 数组 或者按","隔开 POST /admin/goods/info/delete */
 export async function delete16(body: Record<string, any>, options?: { [key: string]: any }) {
   return request<API.R>(`${COMMON_BASE_URL}/admin/goods/info/delete`, {
@@ -19,6 +35,21 @@ export async function delete16(body: Record<string, any>, options?: { [key: stri
       'Content-Type': 'application/json',
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+
+/** 获取商品详情 GET /admin/goods/info/detail/${param0} */
+export async function getGoodsDetail(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getGoodsDetailParams,
+  options?: { [key: string]: any },
+) {
+  const { goodsId: param0, ...queryParams } = params;
+  return request<API.JSONObject>(`${COMMON_BASE_URL}/admin/goods/info/detail/${param0}`, {
+    method: 'GET',
+    params: { ...queryParams },
     ...(options || {}),
   });
 }
