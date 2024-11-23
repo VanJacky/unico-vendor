@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
@@ -16,7 +16,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Select } from '@/components/select';
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
-import { updateCategory, addCategory, deleteCategories } from '../api/actions';
+import { updateCategory, addCategory, deleteCategories, getCategoryWithTypes } from '../api/actions';
 import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 // Add LoadingOverlay component
@@ -33,51 +33,11 @@ const LoadingOverlay = () => (
 );
 
 export default function CategoryTable() {
-    // Mock category data with products
-    const mockCategories = [
-        {
-            id: 1,
-            name: "Electronics",
-            sortNum: 1,
-            createTime: "2024-03-20",
-            status: 1,
-            products: [
-                { id: 1, name: "iPhone 15 Pro", price: 999.99, sales: 1200, stock: 500, status: "Active" },
-                { id: 2, name: "MacBook Air", price: 1299.99, sales: 800, stock: 300, status: "Active" },
-                { id: 3, name: "AirPods Pro", price: 249.99, sales: 2500, stock: 1000, status: "Active" },
-            ]
-        },
-        {
-            id: 2,
-            name: "Clothing",
-            sortNum: 2,
-            createTime: "2024-03-19",
-            status: 1,
-            products: [
-                { id: 4, name: "Winter Jacket", price: 89.99, sales: 500, stock: 200, status: "Active" },
-                { id: 5, name: "Denim Jeans", price: 59.99, sales: 750, stock: 400, status: "Inactive" },
-                { id: 6, name: "Cotton T-Shirt", price: 19.99, sales: 1500, stock: 800, status: "Active" },
-            ]
-        },
-        {
-            id: 3,
-            name: "Home & Garden",
-            sortNum: 3,
-            createTime: "2024-03-18",
-            status: 1,
-            products: [
-                { id: 7, name: "Garden Tools Set", price: 149.99, sales: 300, stock: 150, status: "Active" },
-                { id: 8, name: "Smart LED Bulb", price: 29.99, sales: 900, stock: 600, status: "Active" },
-                { id: 9, name: "Coffee Maker", price: 79.99, sales: 400, stock: 0, status: "Inactive" },
-            ]
-        }
-    ];
-
-    const [categories, setCategories] = useState(mockCategories);
+    const [categories, setCategories] = useState([]);
     const [expandedRows, setExpandedRows] = useState(() => {
         // Initialize with all rows expanded
         const initialState = {};
-        mockCategories.forEach(cat => {
+        categories.forEach(cat => {
             initialState[cat.id] = true;
         });
         return initialState;
@@ -90,6 +50,48 @@ export default function CategoryTable() {
         sortNum: 0,
         status: 1
     });
+
+    // 添加数据加载状态
+    const [loading, setLoading] = useState(false);
+
+    // 添加数据获取逻辑
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                setLoading(true);
+                const data = await getCategoryWithTypes();
+                // 转换数据结构以匹配表格需求
+                const formattedData = data.map(category => ({
+                    id: category.id,
+                    name: category.name,
+                    sortNum: category.sortNum,
+                    createTime: category.createTime.split(' ')[0], // 只显示日期部分
+                    status: category.status,
+                    products: category.goodsList.map(product => ({
+                        id: product.id,
+                        name: product.title,
+                        price: product.price,
+                        sales: product.sold,
+                        stock: 0, // 数据中没有库存信息，用0占位
+                        status: product.status === 1 ? "Active" : "Inactive",
+                        sortNum: product.sortNum
+                    }))
+                }));
+                setCategories(formattedData);
+            } catch (error) {
+                console.error('获取分类失败:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    // 如果需要显示加载状态
+    if (loading) {
+        return <LoadingOverlay />;
+    }
 
     const toggleExpand = (categoryId) => {
         setExpandedRows(prev => ({
@@ -288,7 +290,6 @@ export default function CategoryTable() {
                                                         </TableCell>
                                                         <TableCell className="text-right">
                                                             <div className="flex items-center justify-end gap-4">
-
                                                                 {/* Action Links */}
                                                                 <div className="flex gap-4">
                                                                     <Link
@@ -297,7 +298,7 @@ export default function CategoryTable() {
                                                                             e.preventDefault();
                                                                             handleProductAction('view', product);
                                                                         }}
-                                                                        className="font-medium text-blue-600 hover:text-blue-800"
+                                                                        className="font-medium text-blue-600 hover:text-blue-700"
                                                                     >
                                                                         Details
                                                                     </Link>
@@ -307,7 +308,7 @@ export default function CategoryTable() {
                                                                             e.preventDefault();
                                                                             handleProductAction('toggle', product);
                                                                         }}
-                                                                        className="font-medium text-blue-600 hover:text-blue-800"
+                                                                        className="font-medium text-blue-600 hover:text-blue-700"
                                                                     >
                                                                         {product.status === "Active" ? "Deactivate" : "Activate"}
                                                                     </Link>
@@ -320,8 +321,9 @@ export default function CategoryTable() {
                                                                             handleProductSort(category.id, index, 'up');
                                                                         }}
                                                                         disabled={index === 0}
-                                                                        className={`p-1 text-gray-500 hover:text-gray-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                                                            }`}
+                                                                        className={`p-1 text-gray-600 hover:text-gray-800 ${
+                                                                            index === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                        }`}
                                                                     >
                                                                         <ArrowUpIcon className="w-4 h-4" />
                                                                     </button>
@@ -331,8 +333,9 @@ export default function CategoryTable() {
                                                                             handleProductSort(category.id, index, 'down');
                                                                         }}
                                                                         disabled={index === category.products.length - 1}
-                                                                        className={`p-1 text-gray-500 hover:text-gray-700 ${index === category.products.length - 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                                                            }`}
+                                                                        className={`p-1 text-gray-600 hover:text-gray-800 ${
+                                                                            index === category.products.length - 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                        }`}
                                                                     >
                                                                         <ArrowDownIcon className="w-4 h-4" />
                                                                     </button>
