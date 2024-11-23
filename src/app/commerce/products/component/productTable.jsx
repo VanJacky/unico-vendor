@@ -44,12 +44,18 @@ export function ProductsTable() {
 
     useEffect(() => {
         loadProducts();
-    }, []);
+    }, [selectedTab]);
 
     const loadProducts = async () => {
         try {
             setIsLoading(true);
-            const productsData = await getProductsWithTypes();
+            let status;
+            if (selectedTab === 'Active') {
+                status = 1;
+            } else if (selectedTab === 'Inactive') {
+                status = 0;
+            }
+            const productsData = await getProductsWithTypes(status);
             setProducts(productsData);
         } catch (error) {
             console.error('获取产品失败:', error);
@@ -290,7 +296,17 @@ export function ProductsTable() {
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{product.specs || '暂无规格'}</TableCell>
+                                    <TableCell>
+                                        {product.specs ? (
+                                            <div className="space-y-1">
+                                                {product.specs.map((spec, index) => (
+                                                    <div key={index} className="text-sm text-gray-600">
+                                                        {spec.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : '暂无规格'}
+                                    </TableCell>
                                     <TableCell>${product.price}</TableCell>
                                     <TableCell>{product.typeName}</TableCell>
                                     <TableCell>{product.sold}</TableCell>

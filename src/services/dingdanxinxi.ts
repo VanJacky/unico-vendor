@@ -3,6 +3,18 @@
 import request from '@/utils/require';
 import { COMMON_BASE_URL } from '../../constant/constant';
 
+
+
+
+/** 新增 新增信息，对应后端的实体类 POST /admin/order/info/add */
+export async function add9(options?: { [key: string]: any }) {
+  return request<API.R>(`${COMMON_BASE_URL}/admin/order/info/add`, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+
 /** 发货 POST /admin/order/info/deliver */
 export async function deliver(options?: { [key: string]: any }) {
   return request<API.R>(`${COMMON_BASE_URL}/admin/order/info/deliver`, {
@@ -33,6 +45,16 @@ export async function logistics1(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// /** 分页查询订单和用户信息 分页查询订单并关联用户信息 POST /admin/order/info/pageWithUser */
+// export async function pageWithUser(options?: { [key: string]: any }) {
+//   return request<API.R>(`${COMMON_BASE_URL}/admin/order/info/getList`, {
+//     method: 'POST',
+//     ...(options || {}),
+//   });
+// }
+
+
 
 /** 分页 分页查询多个信息 POST /admin/order/info/page */
 export async function page17(options?: { [key: string]: any }) {

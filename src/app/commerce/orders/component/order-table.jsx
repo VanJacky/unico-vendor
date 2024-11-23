@@ -1,37 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 import YDIcon from "@/utils/yd-icon";
-import {Badge} from "@/components/badge";
-import {Dropdown, DropdownButton, DropdownItem, DropdownMenu} from "@/components/dropdown";
-import {EllipsisHorizontalIcon} from "@heroicons/react/16/solid";
-import {Link} from "@/components/link";
-import {Heading} from "@/components/heading";
-import {Input, InputGroup} from "@/components/input";
-import {MagnifyingGlassIcon} from "@heroicons/react/16/solid";
-import {Select} from "@/components/select";
+import { Badge } from "@/components/badge";
+import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from "@/components/dropdown";
+import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
+import { Link } from "@/components/link";
+import { Heading } from "@/components/heading";
+import { Input, InputGroup } from "@/components/input";
+import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
+import { Select } from "@/components/select";
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
+import { getUserList, fetchGoodsList, createOrderOnly, getOrderList } from '../api/action';
 
-// Add mock data
-const mockUsers = [
-    { id: 1, name: "John Smith", email: "john@example.com", phone: "+1 234-567-8900" },
-    { id: 2, name: "Emma Wilson", email: "emma@example.com", phone: "+1 234-567-8901" },
-    { id: 3, name: "Michael Brown", email: "michael@example.com", phone: "+1 234-567-8902" },
-    { id: 4, name: "Sarah Davis", email: "sarah@example.com", phone: "+1 234-567-8903" }
-];
-
-const mockProducts = [
-    { id: 1, name: "Premium Membership", price: 99.99 },
-    { id: 2, name: "Basic Package", price: 49.99 },
-    { id: 3, name: "Gold Subscription", price: 199.99 },
-    { id: 4, name: "VIP Access Pass", price: 299.99 }
-];
-
-export default function OrderTable({ orders }) {
+export default function OrderTable({ orders: initialOrders }) {
+    const [orders, setOrders] = useState(initialOrders);
     const [expandedRows, setExpandedRows] = useState({});
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -40,6 +27,14 @@ export default function OrderTable({ orders }) {
     const [cameraActive, setCameraActive] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [userPagination, setUserPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0
+    });
+    const [selectedProductPrice, setSelectedProductPrice] = useState(0);
 
     const toggleExpand = (orderId) => {
         setExpandedRows((prev) => ({
@@ -59,9 +54,33 @@ export default function OrderTable({ orders }) {
     const openDialog = () => setIsDialogOpen(true);
     const closeDialog = () => setIsDialogOpen(false);
 
-    const handleOrderCreate = () => {
+    const handleOrderFormSubmit = () => {
+        if (!selectedUser || !selectedProduct) {
+            // 显示错误提示
+            return;
+        }
+
+        // 关闭订单信息弹窗，打开支付选择弹窗
         closeDialog();
         setShowPaymentDialog(true);
+    };
+
+    const handleCreateOnly = () => {
+        const orderData = {
+            userId: selectedUser.id,
+            productName: products.find(p => p.id === parseInt(selectedProduct))?.title,
+            price: selectedProductPrice
+        };
+
+ 
+        createOrderOnly(orderData)
+            .then(() => {
+                setShowPaymentDialog(false);
+ 
+            })
+            .catch(error => {
+                // 显示错误提示
+            });
     };
 
     const handleImmediatePayment = () => {
@@ -72,13 +91,120 @@ export default function OrderTable({ orders }) {
     const handleUserSearch = (e) => {
         const term = e.target.value;
         setSearchTerm(term);
-        
-        const filtered = mockUsers.filter(user => 
-            user.name.toLowerCase().includes(term.toLowerCase()) ||
-            user.email.toLowerCase().includes(term.toLowerCase()) ||
-            user.phone.includes(term)
-        );
-        setFilteredUsers(filtered);
+        // 重置分页到第一页
+        setUserPagination(prev => ({
+            ...prev,
+            current: 1
+        }));
+    };
+
+    // 获取商品列表
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                const data = await fetchGoodsList();
+                setProducts(data || []);
+            } catch (error) {
+                console.error('获取商品列表失败:', error);
+            }
+        };
+
+        loadProducts();
+    }, []);
+
+    // 获取用户列表
+    useEffect(() => {
+        const loadUsers = async () => {
+            try {
+                const options = {
+                    data: {
+                        current: userPagination.current,
+                        pageSize: userPagination.pageSize,
+                        keyword: searchTerm
+                    }
+                };
+                const { list, pagination } = await getUserList(options);
+                setUsers(list);
+                setUserPagination(prev => ({
+                    ...prev,
+                    total: pagination.total
+                }));
+                setFilteredUsers(list);
+            } catch (error) {
+                console.error('获取用户列表失败:', error);
+            }
+        };
+
+        loadUsers();
+    }, [userPagination.current, userPagination.pageSize, searchTerm]);
+
+    // 修改获取订单列表的实现
+    useEffect(() => {
+        const loadOrders = async () => {
+            try {
+                const options = {
+                    data: {
+                        current: 1,
+                        pageSize: 10,
+                        keyword: ''
+                    }
+                };
+                const { list } = await getOrderList(options);
+                
+                // 合并后端数据和模拟数据
+                const formattedList = list.map(order => ({
+                    ...order,
+                    date: order.createTime,
+                    customer: {
+                        name: order.user?.nickName || '未知用户',
+                        email: order.user?.email || '-',
+                        address: order.address || '-'
+                    },
+                    phoneNumber: order.user?.phone || '-',
+                    amount: {
+                        usd: `$${order.price}` // 直接使用美元单位
+                    },
+                    shipping: {
+                        method: order.logistics ? '快递配送' : '自提',
+                        trackingNumber: order.logistics?.trackingNumber || '-'
+                    },
+                    status: getOrderStatus(order.status),
+                    products: [{
+                        name: order.title || '未知商品',
+                        quantity: 1
+                    }],
+                    notes: order.remark || '-'
+                }));
+
+                setOrders(prev => [...prev, ...formattedList]);
+            } catch (error) {
+                console.error('获取订单列表失败:', error);
+            }
+        };
+
+        loadOrders();
+    }, []);
+
+    // 添加订单状态映射函数
+    const getOrderStatus = (status) => {
+        const statusMap = {
+            0: 'Pending',
+            1: 'Completed',
+            2: 'Cancelled',
+            // 根据需要添加更多状态映射
+        };
+        return statusMap[status] || 'Unknown';
+    };
+
+    const handleProductSelect = (e) => {
+        const productId = e.target.value;
+        setSelectedProduct(productId);
+
+        // 找到选中商品的价格
+        const product = products.find(p => p.id === parseInt(productId));
+        if (product) {
+            setSelectedProductPrice(product.price);
+        }
     };
 
     return (
@@ -89,8 +215,8 @@ export default function OrderTable({ orders }) {
                     <div className="mt-4 flex max-w-xl gap-4">
                         <div className="flex-1">
                             <InputGroup>
-                                <MagnifyingGlassIcon/>
-                                <Input name="search" placeholder="Search orders&hellip;"/>
+                                <MagnifyingGlassIcon />
+                                <Input name="search" placeholder="Search orders&hellip;" />
                             </InputGroup>
                         </div>
                         <div>
@@ -159,7 +285,7 @@ export default function OrderTable({ orders }) {
                                         {/*    <span>{order.event.name}</span>*/}
                                         {/*</div>*/}
                                         <Badge className="max-sm:hidden"
-                                               color={order.status === 'Completed' ? 'lime' : 'zinc'}>
+                                            color={order.status === 'Completed' ? 'lime' : 'zinc'}>
                                             {order.status}
                                         </Badge>
                                     </TableCell>
@@ -173,7 +299,7 @@ export default function OrderTable({ orders }) {
                                                 <DropdownMenu anchor="bottom end">
                                                     <DropdownItem>
                                                         <a href={`/commerce${order.url}`} title={`Order #${order.id}`}
-                                                           className="block w-full h-full">
+                                                            className="block w-full h-full">
                                                             View
                                                         </a>
 
@@ -187,9 +313,9 @@ export default function OrderTable({ orders }) {
                                     </TableCell>
                                     <TableCell>
                                         {expandedRows[order.id] ? (
-                                            <YDIcon src="/icons/up.svg" alt="Expanded Order Icon" className='w-3 h-3'/>
+                                            <YDIcon src="/icons/up.svg" alt="Expanded Order Icon" className='w-3 h-3' />
                                         ) : (
-                                            <YDIcon src="/icons/down.svg" alt="Collapsed Order Icon" className='w-3 h-3'/>
+                                            <YDIcon src="/icons/down.svg" alt="Collapsed Order Icon" className='w-3 h-3' />
                                         )}
                                     </TableCell>
 
@@ -213,7 +339,7 @@ export default function OrderTable({ orders }) {
                                                         <TableCell className="text-zinc-500">{order.customer.address}</TableCell>
                                                         <TableCell className="text-zinc-500" >{order.customer.email}</TableCell>
                                                         <TableCell className="text-zinc-500">{order.shipping.trackingNumber}</TableCell>
-                                                        <TableCell  className="whitespace-normal break-words text-zinc-500">
+                                                        <TableCell className="whitespace-normal break-words text-zinc-500">
                                                             {order.notes}
                                                         </TableCell>
                                                     </TableRow>
@@ -237,15 +363,15 @@ export default function OrderTable({ orders }) {
                     <div className="space-y-6">
                         {!cameraActive ? (
                             <div className="space-y-4">
-                                <Button 
-                                    className="w-full" 
+                                <Button
+                                    className="w-full"
                                     onClick={handleImmediatePayment}
                                 >
                                     Immediate Payment
                                 </Button>
-                                <Button 
-                                    className="w-full" 
-                                    onClick={() => setShowPaymentDialog(false)}
+                                <Button
+                                    className="w-full"
+                                    onClick={handleCreateOnly}
                                 >
                                     Create Only
                                 </Button>
@@ -253,9 +379,9 @@ export default function OrderTable({ orders }) {
                         ) : (
                             <div className="text-center space-y-4">
                                 <div className="mx-auto w-64 h-64 bg-gray-100 flex items-center justify-center">
-                                    <video 
+                                    <video
                                         id="camera-feed"
-                                        autoPlay 
+                                        autoPlay
                                         playsInline
                                         className="w-full h-full object-cover"
                                     />
@@ -276,27 +402,27 @@ export default function OrderTable({ orders }) {
             </Dialog>
 
             <Dialog open={isDialogOpen} onClose={closeDialog} size="5xl">
-                <DialogTitle>Create Order</DialogTitle>
+                <DialogTitle>创建订单</DialogTitle>
                 <DialogDescription>
-                    Please fill in the order information
+                    请填写订单信息
                 </DialogDescription>
                 <DialogBody>
                     <div className="space-y-6">
                         <Field>
-                            <Label>Select User</Label>
+                            <Label>选择用户</Label>
                             <InputGroup>
-                                <MagnifyingGlassIcon/>
-                                <Input 
-                                    name="user_search" 
-                                    placeholder="Search users by name, email, or phone..."
+                                <MagnifyingGlassIcon />
+                                <Input
+                                    name="user_search"
+                                    placeholder="搜索用户（姓名、邮箱或电话）..."
                                     value={searchTerm}
                                     onChange={handleUserSearch}
                                 />
                             </InputGroup>
                             {searchTerm && filteredUsers.length > 0 && (
-                                <div className="mt-2 border rounded-md shadow-sm">
+                                <div className="mt-2 border rounded-md shadow-sm max-h-60 overflow-y-auto">
                                     {filteredUsers.map(user => (
-                                        <div 
+                                        <div
                                             key={user.id}
                                             className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
                                             onClick={() => {
@@ -314,19 +440,24 @@ export default function OrderTable({ orders }) {
                         </Field>
 
                         <Field>
-                            <Label>Select Product</Label>
-                            <Select 
+                            <Label>选择商品</Label>
+                            <Select
                                 name="product"
                                 value={selectedProduct}
-                                onChange={(e) => setSelectedProduct(e.target.value)}
+                                onChange={handleProductSelect}
                             >
-                                <option value="">Please select a product</option>
-                                {mockProducts.map(product => (
+                                <option value="">请选择商品</option>
+                                {products.map(product => (
                                     <option key={product.id} value={product.id}>
-                                        {product.name} - ${product.price}
+                                        {product.title} - ¥{product.price}
                                     </option>
                                 ))}
                             </Select>
+                            {selectedProductPrice > 0 && (
+                                <div className="mt-2 text-sm text-gray-500">
+                                    订单金额: ¥{selectedProductPrice}
+                                </div>
+                            )}
                         </Field>
 
                         <Field>
@@ -340,8 +471,8 @@ export default function OrderTable({ orders }) {
                     </div>
                 </DialogBody>
                 <DialogActions>
-                    <Button plain onClick={closeDialog}>Cancel</Button>
-                    <Button onClick={handleOrderCreate}>Save</Button>
+                    <Button plain onClick={closeDialog}>取消</Button>
+                    <Button onClick={handleOrderFormSubmit}>下一步</Button>
                 </DialogActions>
             </Dialog>
 

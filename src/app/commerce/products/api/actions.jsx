@@ -5,8 +5,8 @@ import { page25 as getProductsPage } from '@/services/shangpinxinxi';
 import { list17 as getTypeList } from '@/services/shangpinleixing';
 import { addGoodsWithSpecs } from '@/services/shangpinxinxi';
 import { getGoodsDetail } from '@/services/shangpinxinxi';
-import { uuid } from "@/utils";
-    
+
+
 export async function deleteProducts(productIds) {
     try {
         // 构造正确的请求格式 {ids: [...]}
@@ -36,12 +36,12 @@ export async function createProduct(formData) {
             mainPic: formData.pics[0] || '',
             pics: formData.pics,
             specs: formData.specs.map(spec => ({
-                name: spec.skuId || uuid(),
+                name: spec.name,
                 price: Number(spec.price),
                 stock: Number(spec.stock),
                 properties: spec.properties,
                 sortNum: 0,
-                images: []
+                images: spec.images
             }))
         };
         console.log(submitData); // 打印表单数据
@@ -55,10 +55,11 @@ export async function createProduct(formData) {
     }
 }
 
-export async function getProductsWithTypes() {
-    const response = await getProductsPage();
+export async function getProductsWithTypes(status) {
+    const params = status !== undefined ? { data: { status } } : {};
+    const response = await getProductsPage(params);
     const productList = response.data.list || [];
-
+    // console.log("nihao", response.data);
     // 获取商品类型列表
     const typeResponse = await getTypeList();
     const typeList = typeResponse.data || [];
@@ -90,6 +91,7 @@ export async function fetchTypeList() {
 export async function getProductById(id) {
     try {
         const response = await getGoodsDetail({ goodsId: id });
+
         return response.data;
     } catch (error) {
         console.log('获取商品详情时出错:', error);

@@ -7,7 +7,7 @@ import SelectProductCategory from "./select-product-category";
 import { Input, InputGroup } from "@/components/input";
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from "@/components/dialog";
 import { Button } from "@/components/button";
-import SkuCreatorSimple from "@/components/sku-creator-simple";
+import SkuCreator from "@/components/sku-creator";
 import { useRouter } from 'next/navigation';
 import SuccessAlert from '@/components/success-alert';
 
@@ -161,9 +161,15 @@ export default function EditProduct({ id }) {
     };
 
     const handleSkuChange = (skus) => {
+        // 确保每个 sku 的 properties 是 JSON 字符串
+        const processedSkus = skus.map(sku => ({
+            ...sku,
+            properties: JSON.stringify(sku.properties)
+        }));
+
         setFormData(prev => ({
             ...prev,
-            specs: skus
+            specs: processedSkus
         }));
     };
 
@@ -338,11 +344,12 @@ export default function EditProduct({ id }) {
         const loadProductDetail = async () => {
             if (id) {
                 try {
-                    setIsLoading(true);
+                    setIsLoading(true); // 开始加载
                     const productDetail = await getProductById(id);
                     setProduct(productDetail);
+                    // 更新 formData，添加 id 字段
                     setFormData({
-                        id: productDetail.id,
+                        id: productDetail.id, // 添加 id 字段
                         title: productDetail.title || '',
                         price: productDetail.price || '',
                         typeId: productDetail.typeId || '',
@@ -358,7 +365,7 @@ export default function EditProduct({ id }) {
                     console.error('加载商品详情失败：', error);
                     alert('加载商品详情失败：' + error.message);
                 } finally {
-                    setIsLoading(false);
+                    setIsLoading(false); // 结束加载
                 }
             }
         };
@@ -558,8 +565,13 @@ export default function EditProduct({ id }) {
                     设置产品的规格、价格和库存信息
                 </DialogDescription>
                 <DialogBody>
-                    <SkuCreatorSimple
-                        skus={formData.specs || []}
+                    <SkuCreator
+                        skus={formData.specs?.map(spec => ({
+                            ...spec,
+                            properties: typeof spec.properties === 'string'
+                                ? JSON.parse(spec.properties)
+                                : spec.properties
+                        })) || []}
                         onChange={handleSkuChange}
                     />
                 </DialogBody>

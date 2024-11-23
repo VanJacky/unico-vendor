@@ -103,7 +103,7 @@ export default function UserTable() {
                     <TableHead>
                         <TableRow>
                             <TableHeader>Avatar</TableHeader>
-                            <TableHeader>ID</TableHeader>
+                            {/* <TableHeader>ID</TableHeader> */}
                             <TableHeader>Nickname</TableHeader>
                             <TableHeader>Phone</TableHeader>
                             <TableHeader>Create Time</TableHeader>
@@ -125,7 +125,7 @@ export default function UserTable() {
                                         />
                                     </div>
                                 </TableCell>
-                                <TableCell>{user.id}</TableCell>
+                                {/* <TableCell>{user.id}</TableCell> */}
                                 <TableCell>{user.nickName}</TableCell>
                                 <TableCell>{user.phone || 'N/A'}</TableCell>
                                 <TableCell className="text-zinc-500">{user.createTime}</TableCell>

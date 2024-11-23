@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 import YDIcon from "@/utils/yd-icon";
 import { Badge } from "@/components/badge";
 import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from "@/components/dropdown";
-import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
+import { ArrowDownIcon, ArrowUpIcon, EllipsisHorizontalIcon, PlusCircleIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
 import { Switch, SwitchField } from "@/components/switch";
 import { Heading } from '@/components/heading';
 import { Input, InputGroup } from '@/components/input';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Select } from '@/components/select';
-import { getCategoryWithTypes } from '../api/actions';
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
 import { updateCategory, addCategory, deleteCategories } from '../api/actions';
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 // Add LoadingOverlay component
 const LoadingOverlay = () => (
@@ -33,8 +33,55 @@ const LoadingOverlay = () => (
 );
 
 export default function CategoryTable() {
-    const [category, setCategory] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    // Mock category data with products
+    const mockCategories = [
+        {
+            id: 1,
+            name: "Electronics",
+            sortNum: 1,
+            createTime: "2024-03-20",
+            status: 1,
+            products: [
+                { id: 1, name: "iPhone 15 Pro", price: 999.99, sales: 1200, stock: 500, status: "Active" },
+                { id: 2, name: "MacBook Air", price: 1299.99, sales: 800, stock: 300, status: "Active" },
+                { id: 3, name: "AirPods Pro", price: 249.99, sales: 2500, stock: 1000, status: "Active" },
+            ]
+        },
+        {
+            id: 2,
+            name: "Clothing",
+            sortNum: 2,
+            createTime: "2024-03-19",
+            status: 1,
+            products: [
+                { id: 4, name: "Winter Jacket", price: 89.99, sales: 500, stock: 200, status: "Active" },
+                { id: 5, name: "Denim Jeans", price: 59.99, sales: 750, stock: 400, status: "Inactive" },
+                { id: 6, name: "Cotton T-Shirt", price: 19.99, sales: 1500, stock: 800, status: "Active" },
+            ]
+        },
+        {
+            id: 3,
+            name: "Home & Garden",
+            sortNum: 3,
+            createTime: "2024-03-18",
+            status: 1,
+            products: [
+                { id: 7, name: "Garden Tools Set", price: 149.99, sales: 300, stock: 150, status: "Active" },
+                { id: 8, name: "Smart LED Bulb", price: 29.99, sales: 900, stock: 600, status: "Active" },
+                { id: 9, name: "Coffee Maker", price: 79.99, sales: 400, stock: 0, status: "Inactive" },
+            ]
+        }
+    ];
+
+    const [categories, setCategories] = useState(mockCategories);
+    const [expandedRows, setExpandedRows] = useState(() => {
+        // Initialize with all rows expanded
+        const initialState = {};
+        mockCategories.forEach(cat => {
+            initialState[cat.id] = true;
+        });
+        return initialState;
+    });
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [newCategory, setNewCategory] = useState({
@@ -43,23 +90,17 @@ export default function CategoryTable() {
         sortNum: 0,
         status: 1
     });
-    const [refresh, setRefresh] = useState(0);
 
-    useEffect(() => {
-        loadCategories();
-    }, [refresh]);
+    const toggleExpand = (categoryId) => {
+        setExpandedRows(prev => ({
+            ...prev,
+            [categoryId]: !prev[categoryId]
+        }));
+    };
 
-    const loadCategories = async () => {
-        try {
-            setIsLoading(true);
-            const response = await getCategoryWithTypes();
-            console.log('Response received:', response);
-            setCategory(Array.isArray(response) ? response : []);
-        } catch (error) {
-            console.error('获取分类失败:', error);
-        } finally {
-            setIsLoading(false);
-        }
+    const handleProductAction = (action, product) => {
+        console.log(`${action} product:`, product);
+        // Add your action handling logic here
     };
 
     const handleCreateCategory = () => {
@@ -73,140 +114,242 @@ export default function CategoryTable() {
         setIsDialogOpen(true);
     };
 
-    const handleEditCategory = (category) => {
-        setIsEditing(true);
-        setNewCategory({
-            id: category.id,
-            name: category.name,
-            sortNum: category.sortNum,
-            status: category.status
-        });
-        setIsDialogOpen(true);
-    };
-
     const closeDialog = () => {
         setIsDialogOpen(false);
-        setIsEditing(false);
-        setNewCategory({ id: null, name: '', sortNum: 0, status: 1 });
+        setNewCategory({
+            id: null,
+            name: '',
+            sortNum: 0,
+            status: 1
+        });
     };
 
     const handleSaveCategory = async () => {
+        if (!newCategory.name) {
+            // Add validation handling if needed
+            return;
+        }
+
         try {
-            closeDialog();
-            setIsLoading(true);
-            
             if (isEditing) {
-                await updateCategory(newCategory);
+                // Handle edit logic
+                console.log('Editing category:', newCategory);
             } else {
-                const response = await addCategory(newCategory);
-                console.log('新增分类响应:', response);
+                // Handle create logic
+                console.log('Creating new category:', newCategory);
             }
-            
-            setRefresh(prev => prev + 1);
+            closeDialog();
         } catch (error) {
-            console.error('保存分类失败:', error);
-        } finally {
-            setIsLoading(false);
+            console.error('Error saving category:', error);
         }
     };
 
-    const handleDeleteCategory = async (categoryId) => {
-        try {
-            setIsLoading(true);
-            await deleteCategories(categoryId);
-            // 删除后刷新列表
-            await loadCategories();
-        } catch (error) {
-            console.error('删除分类失败:', error);
-        } finally {
-            setIsLoading(false);
+    // Add new handler for product sorting
+    const handleProductSort = (categoryId, productIndex, direction) => {
+        const category = categories.find(c => c.id === categoryId);
+        if (!category ||
+            (direction === 'up' && productIndex === 0) ||
+            (direction === 'down' && productIndex === category.products.length - 1)) {
+            return;
         }
+
+        setCategories(prevCategories => {
+            const newCategories = [...prevCategories];
+            const categoryIndex = newCategories.findIndex(c => c.id === categoryId);
+            const products = [...newCategories[categoryIndex].products];
+            
+            // 交换位置
+            const newIndex = direction === 'up' ? productIndex - 1 : productIndex + 1;
+            [products[productIndex], products[newIndex]] = [products[newIndex], products[productIndex]];
+            
+            newCategories[categoryIndex] = {
+                ...newCategories[categoryIndex],
+                products: products
+            };
+            
+            return newCategories;
+        });
     };
 
     return (
         <main>
-            {/* Global loading overlay */}
-            {isLoading && <LoadingOverlay />}
-
-            <div className="mx-auto">
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                    <div className="max-sm:w-full sm:flex-1">
-                        <Heading>Category</Heading>
-                        <div className="mt-4 flex max-w-xl gap-4">
-                            <div className="flex-1">
-                                <InputGroup>
-                                    <MagnifyingGlassIcon />
-                                    <Input name="search" placeholder="Search orders&hellip;" />
-                                </InputGroup>
-                            </div>
-                            <div>
-                                <Select name="sort_by">
-                                    <option value="name">Sort by name</option>
-                                    <option value="date">Sort by date</option>
-                                    <option value="status">Sort by status</option>
-                                </Select>
-                            </div>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                <div className="max-sm:w-full sm:flex-1">
+                    <Heading>Category</Heading>
+                    <div className="mt-4 flex max-w-xl gap-4">
+                        <div className="flex-1">
+                            <InputGroup>
+                                <MagnifyingGlassIcon />
+                                <Input name="search" placeholder="Search orders&hellip;" />
+                            </InputGroup>
+                        </div>
+                        <div>
+                            <Select name="sort_by">
+                                <option value="name">Sort by name</option>
+                                <option value="date">Sort by date</option>
+                                <option value="status">Sort by status</option>
+                            </Select>
                         </div>
                     </div>
-                    <Button onClick={handleCreateCategory}>
-                        Create Category
-                    </Button>
                 </div>
+                <Button onClick={handleCreateCategory}>
+                    Create Category
+                </Button>
+            </div>
 
-                <Table className="mt-10 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
-                    <TableHead>
-                        <TableRow>
-                            <TableHeader>ID</TableHeader>
-                            <TableHeader>Name</TableHeader>
-                            <TableHeader>Sort</TableHeader>
-                            <TableHeader>Product Quantity</TableHeader>
-                            <TableHeader>Create Date</TableHeader>
-                            <TableHeader>Status</TableHeader>
-                            <TableHeader className="relative w-0">
-                                <span className="sr-only">Actions</span>
-                            </TableHeader>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {category.map((ca) => (
-                            <React.Fragment key={ca.id}>
-                                <TableRow className="cursor-pointer">
-                                    <TableCell>{ca.id}</TableCell>
-                                    <TableCell>{ca.name}</TableCell>
-                                    <TableCell>{ca.sortNum}</TableCell>
-                                    <TableCell>-</TableCell>
-                                    <TableCell className="text-zinc-500">{ca.createTime}</TableCell>
-                                    <TableCell>
-                                        <Switch aria-label="Allow show" name="status" value={ca.status === 1} />
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="-mx-3 -my-1.5 sm:-mx-2.5">
-                                            <Dropdown>
-                                                <DropdownButton plain aria-label="More options">
-                                                    <EllipsisHorizontalIcon />
-                                                </DropdownButton>
-                                                <DropdownMenu anchor="bottom end">
-                                                    <DropdownItem>
-                                                        <Link href={`/commerce/category/view/${ca.id}`}>
-                                                            View
-                                                        </Link>
-                                                    </DropdownItem>
-                                                    <DropdownItem onClick={() => handleEditCategory(ca)}>
-                                                        Edit
-                                                    </DropdownItem>
-                                                    <DropdownItem onClick={() => handleDeleteCategory(ca.id)}>
-                                                        Delete
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </Dropdown>
-                                        </div>
+            <Table className="mt-10 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+                <TableHead>
+                    <TableRow>
+                        <TableHeader className="w-10">
+                            <span className="sr-only">Add Product</span>
+                        </TableHeader>
+                        <TableHeader>Name</TableHeader>
+                        <TableHeader>Sort</TableHeader>
+                        <TableHeader>Product Count</TableHeader>
+                        <TableHeader>Create Date</TableHeader>
+                        <TableHeader>Status</TableHeader>
+                        <TableHeader>Actions</TableHeader>
+                        <TableHeader></TableHeader>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {categories.map((category) => (
+                        <React.Fragment key={category.id}>
+                            <TableRow className="cursor-pointer" onClick={() => toggleExpand(category.id)}>
+                                <TableCell className="w-10">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            console.log('Add product to category:', category.id);
+                                        }}
+                                        className="p-1 text-[#0F53FF] hover:text-[#0F53FF]/80 rounded-full hover:bg-[#0F53FF]/10"
+                                    >
+                                        <PlusCircleIcon className="w-5 h-5" />
+                                    </button>
+                                </TableCell>
+                                <TableCell>{category.name}</TableCell>
+                                <TableCell>{category.sortNum}</TableCell>
+                                <TableCell>{category.products.length}</TableCell>
+                                <TableCell>{category.createTime}</TableCell>
+                                <TableCell>
+                                    <Switch
+                                        checked={category.status === 1}
+                                        onChange={(e) => e.stopPropagation()}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <div className="-mx-3 -my-1.5 sm:-mx-2.5">
+                                        <Dropdown>
+                                            <DropdownButton plain aria-label="More options">
+                                                <EllipsisHorizontalIcon />
+                                            </DropdownButton>
+                                            <DropdownMenu anchor="bottom end">
+                                                <DropdownItem>View</DropdownItem>
+                                                <DropdownItem>Edit</DropdownItem>
+                                                <DropdownItem>Delete</DropdownItem>
+                                            </DropdownMenu>
+                                        </Dropdown>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {expandedRows[category.id] ? (
+                                        <YDIcon src="/icons/up.svg" alt="Expanded" className='w-3 h-3' />
+                                    ) : (
+                                        <YDIcon src="/icons/down.svg" alt="Collapsed" className='w-3 h-3' />
+                                    )}
+                                </TableCell>
+                            </TableRow>
+
+                            {expandedRows[category.id] && (
+                                <TableRow className="bg-gray-50">
+                                    <TableCell colSpan="8" className="p-0">
+                                        <Table className="w-full">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableHeader className="w-[10%]">Sort</TableHeader>
+                                                    <TableHeader className="w-[30%]">Product Name</TableHeader>
+                                                    <TableHeader className="w-[15%]">Price</TableHeader>
+                                                    <TableHeader className="w-[15%]">Status</TableHeader>
+                                                    <TableHeader className="w-[30%] text-right">Actions</TableHeader>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {category.products.map((product, index) => (
+                                                    <TableRow key={product.id}>
+                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell>{product.name}</TableCell>
+                                                        <TableCell>${product.price}</TableCell>
+                                                        <TableCell>
+                                                            <Badge
+                                                                color={product.status === "Active" ? "lime" : "zinc"}
+                                                            >
+                                                                {product.status}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex items-center justify-end gap-4">
+
+                                                                {/* Action Links */}
+                                                                <div className="flex gap-4">
+                                                                    <Link
+                                                                        href="#"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            handleProductAction('view', product);
+                                                                        }}
+                                                                        className="font-medium text-blue-600 hover:text-blue-800"
+                                                                    >
+                                                                        Details
+                                                                    </Link>
+                                                                    <Link
+                                                                        href="#"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            handleProductAction('toggle', product);
+                                                                        }}
+                                                                        className="font-medium text-blue-600 hover:text-blue-800"
+                                                                    >
+                                                                        {product.status === "Active" ? "Deactivate" : "Activate"}
+                                                                    </Link>
+                                                                </div>
+                                                                {/* Sort Buttons */}
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleProductSort(category.id, index, 'up');
+                                                                        }}
+                                                                        disabled={index === 0}
+                                                                        className={`p-1 text-gray-500 hover:text-gray-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                            }`}
+                                                                    >
+                                                                        <ArrowUpIcon className="w-4 h-4" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleProductSort(category.id, index, 'down');
+                                                                        }}
+                                                                        disabled={index === category.products.length - 1}
+                                                                        className={`p-1 text-gray-500 hover:text-gray-700 ${index === category.products.length - 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                            }`}
+                                                                    >
+                                                                        <ArrowDownIcon className="w-4 h-4" />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
                                     </TableCell>
                                 </TableRow>
-                            </React.Fragment>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </TableBody>
+            </Table>
 
             {/* Add Create Category Dialog */}
             <Dialog open={isDialogOpen} onClose={closeDialog}>
@@ -243,8 +386,8 @@ export default function CategoryTable() {
                     </Field>
                 </DialogBody>
                 <DialogActions>
-                    <Button plain onClick={closeDialog}>取消</Button>
-                    <Button onClick={handleSaveCategory}>保存</Button>
+                    <Button plain onClick={closeDialog}>Cancel</Button>
+                    <Button onClick={handleSaveCategory}>Save</Button>
                 </DialogActions>
             </Dialog>
         </main>
