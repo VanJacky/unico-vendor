@@ -1,15 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
-import { Avatar } from '@/components/avatar';
-import { Button } from '@/components/button';
+ import { Button } from '@/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
-import YDIcon from "@/utils/yd-icon";
-import { Badge } from "@/components/badge";
+ import { Badge } from "@/components/badge";
 import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from "@/components/dropdown";
 import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { Link } from "@/components/link";
-import { deleteProducts, getProductsWithTypes } from '../api/actions';
+import { deleteProducts, getProductsWithTypes, toggleProductStatus } from '../api/actions';
 import { Input, InputGroup } from "@/components/input";
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import { Select } from "@/components/select";
@@ -132,6 +130,28 @@ export function ProductsTable() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleStatusToggle = (productId, currentStatus) => {
+        setProducts(prevProducts => 
+            prevProducts.map(product => 
+                product.id === productId 
+                    ? {...product, status: currentStatus === 1 ? 0 : 1}
+                    : product
+            )
+        );
+
+        toggleProductStatus(productId, currentStatus === 1 ? 0 : 1)
+            .catch(error => {
+                console.error('状态切换失败:', error);
+                setProducts(prevProducts => 
+                    prevProducts.map(product => 
+                        product.id === productId 
+                            ? {...product, status: currentStatus}
+                            : product
+                    )
+                );
+            });
     };
 
     return (
@@ -335,6 +355,9 @@ export function ProductsTable() {
                                                         <Link href={`/commerce/products/edit/${product.id}`}>
                                                             Edit
                                                         </Link>
+                                                    </DropdownItem>
+                                                    <DropdownItem onClick={() => handleStatusToggle(product.id, product.status)}>
+                                                        {product.status === 1 ? 'Deactivate' : 'Activate'}
                                                     </DropdownItem>
                                                     <DropdownItem onClick={() => handleDeleteClick(product.id)}>
                                                         Delete

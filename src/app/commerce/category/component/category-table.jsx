@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 import YDIcon from "@/utils/yd-icon";
@@ -16,8 +15,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Select } from '@/components/select';
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
-import { updateCategory, addCategory, deleteCategories, getCategoryWithTypes } from '../api/actions';
-import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { updateCategory, updateProductsSort, addCategory, deleteCategories, getCategoryWithTypes } from '../api/actions';
+import { toggleProductStatus } from '@/app/commerce/products/api/actions';
 
 // Add LoadingOverlay component
 const LoadingOverlay = () => (
@@ -54,28 +53,32 @@ export default function CategoryTable() {
     // 添加数据加载状态
     const [loading, setLoading] = useState(false);
 
+    // 添加 refresh 状态
+    const [refresh, setRefresh] = useState(0);
+
     // 添加数据获取逻辑
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 setLoading(true);
                 const data = await getCategoryWithTypes();
-                // 转换数据结构以匹配表格需求
                 const formattedData = data.map(category => ({
                     id: category.id,
                     name: category.name,
                     sortNum: category.sortNum,
-                    createTime: category.createTime.split(' ')[0], // 只显示日期部分
+                    createTime: category.createTime.split(' ')[0],
                     status: category.status,
-                    products: category.goodsList.map(product => ({
-                        id: product.id,
-                        name: product.title,
-                        price: product.price,
-                        sales: product.sold,
-                        stock: 0, // 数据中没有库存信息，用0占位
-                        status: product.status === 1 ? "Active" : "Inactive",
-                        sortNum: product.sortNum
-                    }))
+                    products: category.goodsList
+                        .map(product => ({
+                            id: product.id,
+                            name: product.title,
+                            price: product.price,
+                            sales: product.sold,
+                            stock: 0,
+                            status: product.status === 1 ? "Active" : "Inactive",
+                            sortNum: product.sortNum
+                        }))
+                        .sort((a, b) => a.sortNum - b.sortNum)
                 }));
                 setCategories(formattedData);
             } catch (error) {
@@ -86,7 +89,7 @@ export default function CategoryTable() {
         };
 
         fetchCategories();
-    }, []);
+    }, [refresh]);
 
     // 如果需要显示加载状态
     if (loading) {
@@ -101,8 +104,41 @@ export default function CategoryTable() {
     };
 
     const handleProductAction = (action, product) => {
-        console.log(`${action} product:`, product);
-        // Add your action handling logic here
+        if (action === 'toggle') {
+            // 立即更新UI状态
+            setCategories(prevCategories => 
+                prevCategories.map(category => ({
+                    ...category,
+                    products: category.products.map(p => 
+                        p.id === product.id
+                            ? {...p, status: p.status === "Active" ? "Inactive" : "Active"}
+                            : p
+                    )
+                }))
+            );
+
+            // 异步调用API
+            toggleProductStatus(
+                product.id, 
+                product.status === "Active" ? 0 : 1
+            ).catch(error => {
+                console.error('状态切换失败:', error);
+                // 如果API调用失败，回滚状态
+                setCategories(prevCategories => 
+                    prevCategories.map(category => ({
+                        ...category,
+                        products: category.products.map(p => 
+                            p.id === product.id
+                                ? {...p, status: product.status}
+                                : p
+                        )
+                    }))
+                );
+            });
+        } else if (action === 'view') {
+            // 处理查看详情逻辑
+            console.log('View product:', product);
+        }
     };
 
     const handleCreateCategory = () => {
@@ -128,25 +164,32 @@ export default function CategoryTable() {
 
     const handleSaveCategory = async () => {
         if (!newCategory.name) {
-            // Add validation handling if needed
             return;
         }
 
         try {
+            setLoading(true);
             if (isEditing) {
-                // Handle edit logic
-                console.log('Editing category:', newCategory);
+                await updateCategory({
+                    id: newCategory.id,
+                    name: newCategory.name,
+                    sortNum: newCategory.sortNum,
+                    status: newCategory.status
+                });
             } else {
-                // Handle create logic
-                console.log('Creating new category:', newCategory);
+                await addCategory(newCategory);
             }
             closeDialog();
+            // 触发刷新
+            setRefresh(prev => prev + 1);
         } catch (error) {
-            console.error('Error saving category:', error);
+            console.error('保存分类失败:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Add new handler for product sorting
+    // 修改 handleProductSort 函数
     const handleProductSort = (categoryId, productIndex, direction) => {
         const category = categories.find(c => c.id === categoryId);
         if (!category ||
@@ -155,22 +198,52 @@ export default function CategoryTable() {
             return;
         }
 
+        const newIndex = direction === 'up' ? productIndex - 1 : productIndex + 1;
+        
+        // 立即更新UI
         setCategories(prevCategories => {
             const newCategories = [...prevCategories];
             const categoryIndex = newCategories.findIndex(c => c.id === categoryId);
             const products = [...newCategories[categoryIndex].products];
             
             // 交换位置
-            const newIndex = direction === 'up' ? productIndex - 1 : productIndex + 1;
-            [products[productIndex], products[newIndex]] = [products[newIndex], products[productIndex]];
+            [products[productIndex], products[newIndex]] = 
+            [products[newIndex], products[productIndex]];
             
             newCategories[categoryIndex] = {
                 ...newCategories[categoryIndex],
                 products: products
             };
             
+            // 获取交换后的新顺序，构建要更新的数据
+            const productsToUpdate = products.map((product, index) => ({
+                id: product.id,
+                sortNum: index + 1
+            }));
+            
+            // 异步调用，不等待结果
+            updateProductsSort(productsToUpdate);
+            
             return newCategories;
         });
+    };
+
+    // 在 CategoryTable 组件内添加 handleDeleteCategory 函数
+    const handleDeleteCategory = async (categoryId) => {
+        if (!window.confirm('确定要删除这个分类吗？')) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await deleteCategories(categoryId);
+            // 触发刷新
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error('删除分类失败:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -220,13 +293,19 @@ export default function CategoryTable() {
                             <TableRow className="cursor-pointer" onClick={() => toggleExpand(category.id)}>
                                 <TableCell className="w-10">
                                     <button
+                                        title="Add Product"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            console.log('Add product to category:', category.id);
+                                            window.location.href = `/commerce/products/edit?categoryId=${category.id}`;
                                         }}
-                                        className="p-1 text-[#0F53FF] hover:text-[#0F53FF]/80 rounded-full hover:bg-[#0F53FF]/10"
+                                        className="group relative p-1 text-[#0F53FF] hover:text-[#0F53FF]/80 rounded-full hover:bg-[#0F53FF]/10"
                                     >
+                                        <span className="sr-only">New Product Here</span>
                                         <PlusCircleIcon className="w-5 h-5" />
+
+                                        <span className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap transition-all duration-200">
+                                            New Product Here
+                                        </span>
                                     </button>
                                 </TableCell>
                                 <TableCell>{category.name}</TableCell>
@@ -236,7 +315,33 @@ export default function CategoryTable() {
                                 <TableCell>
                                     <Switch
                                         checked={category.status === 1}
-                                        onChange={(e) => e.stopPropagation()}
+                                        onChange={(checked) => {
+                                            // 立即更新UI状态
+                                            setCategories(prevCategories => 
+                                                prevCategories.map(cat => 
+                                                    cat.id === category.id 
+                                                        ? {...cat, status: checked ? 1 : 0}
+                                                        : cat
+                                                )
+                                            );
+                                            // 异步调用API
+                                            updateCategory({
+                                                id: category.id,
+                                                name: category.name,
+                                                sortNum: category.sortNum,
+                                                status: checked ? 1 : 0
+                                            }).catch(error => {
+                                                console.error('更新分类状态失败:', error);
+                                                // 如果API调用失败，回滚状态
+                                                setCategories(prevCategories => 
+                                                    prevCategories.map(cat => 
+                                                        cat.id === category.id 
+                                                            ? {...cat, status: category.status}
+                                                            : cat
+                                                    )
+                                                );
+                                            });
+                                        }}
                                     />
                                 </TableCell>
                                 <TableCell>
@@ -247,8 +352,17 @@ export default function CategoryTable() {
                                             </DropdownButton>
                                             <DropdownMenu anchor="bottom end">
                                                 <DropdownItem>View</DropdownItem>
-                                                <DropdownItem>Edit</DropdownItem>
-                                                <DropdownItem>Delete</DropdownItem>
+                                                <DropdownItem onClick={() => {
+                                                    setIsEditing(true);
+                                                    setNewCategory({
+                                                        id: category.id,
+                                                        name: category.name,
+                                                        sortNum: category.sortNum,
+                                                        status: category.status
+                                                    });
+                                                    setIsDialogOpen(true);
+                                                }}>Edit</DropdownItem>
+                                                <DropdownItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownItem>
                                             </DropdownMenu>
                                         </Dropdown>
                                     </div>
@@ -321,9 +435,8 @@ export default function CategoryTable() {
                                                                             handleProductSort(category.id, index, 'up');
                                                                         }}
                                                                         disabled={index === 0}
-                                                                        className={`p-1 text-gray-600 hover:text-gray-800 ${
-                                                                            index === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                                                        }`}
+                                                                        className={`p-1 text-gray-600 hover:text-gray-800 ${index === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                            }`}
                                                                     >
                                                                         <ArrowUpIcon className="w-4 h-4" />
                                                                     </button>
@@ -333,9 +446,8 @@ export default function CategoryTable() {
                                                                             handleProductSort(category.id, index, 'down');
                                                                         }}
                                                                         disabled={index === category.products.length - 1}
-                                                                        className={`p-1 text-gray-600 hover:text-gray-800 ${
-                                                                            index === category.products.length - 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                                                        }`}
+                                                                        className={`p-1 text-gray-600 hover:text-gray-800 ${index === category.products.length - 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                            }`}
                                                                     >
                                                                         <ArrowDownIcon className="w-4 h-4" />
                                                                     </button>

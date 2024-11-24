@@ -43,14 +43,14 @@ const uploadFile = async (file) => {
     }
 };
 
-export default function EditProduct({ id }) {
+export default function EditProduct({ id, categoryId }) {
     const router = useRouter();
     const [product, setProduct] = useState({});
 
     const [formData, setFormData] = useState({
         title: '',
         price: '',
-        typeId: '',
+        typeId: categoryId || '', // 直接使用 categoryId 作为初始值
         subTitle: '',
         mainPic: '',
         pics: [],
@@ -210,13 +210,17 @@ export default function EditProduct({ id }) {
         }
 
         try {
-            setIsLoading(true); // 开始加载
+            setIsLoading(true);
             const result = await createProduct(processedFormData);
 
             if (result.success) {
                 setShowSuccess(true);
                 setTimeout(() => {
-                    router.push('/commerce/products');
+                    if (categoryId) {
+                        router.push('/commerce/category');
+                    } else {
+                        router.push('/commerce/products');
+                    }
                 }, 3000);
             } else {
                 throw new Error(result.message || '保存失败');
@@ -224,7 +228,7 @@ export default function EditProduct({ id }) {
         } catch (error) {
             alert('保存失败：' + error.message);
         } finally {
-            setIsLoading(false); // 结束加载
+            setIsLoading(false);
         }
     };
 
@@ -337,6 +341,7 @@ export default function EditProduct({ id }) {
     useEffect(() => {
         const loadProductDetail = async () => {
             if (id) {
+                // 如果有 id，加载现有产品详情
                 try {
                     setIsLoading(true);
                     const productDetail = await getProductById(id);
@@ -360,11 +365,18 @@ export default function EditProduct({ id }) {
                 } finally {
                     setIsLoading(false);
                 }
+            } else if (categoryId) {
+                // 如果只有 categoryId，说明是新增产品，预设分类
+                console.log("dasdas", categoryId)
+                setFormData(prev => ({
+                    ...prev,
+                    typeId: categoryId
+                }));
             }
         };
 
         loadProductDetail();
-    }, [id]);
+    }, [id, categoryId]);
 
     return (
         <>

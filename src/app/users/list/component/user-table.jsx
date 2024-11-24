@@ -14,11 +14,11 @@ import { Heading } from '@/components/heading';
 import { Input, InputGroup } from '@/components/input';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Select } from '@/components/select';
-import { getUserList } from '../api/actions';
+import { getUserList, addUser } from '../api/actions';
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
 import Image from 'next/image';
- 
+
 
 // Add LoadingOverlay component
 const LoadingOverlay = () => (
@@ -39,23 +39,21 @@ export default function UserTable() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [newUser, setNewUser] = useState({
-        id: null,
-        name: '',
-        email: '',
-        role: 'user',
-        status: 1
+        nickName: '',
+        phone: ''
     });
+    const [shouldRefresh, setShouldRefresh] = useState(false);
 
     useEffect(() => {
         loadUsers();
-    }, []);
+    }, [shouldRefresh]);
 
     const loadUsers = async () => {
         try {
             setIsLoading(true);
             const data = await getUserList({
-                page: 1,
-                size: 20
+                pageNumber: 1,
+                pageSize: 20
             });
             console.log('获取到的数据:', data);
 
@@ -67,6 +65,20 @@ export default function UserTable() {
             console.error('获取用户列表失败:', error);
         } finally {
             setIsLoading(false);
+            setShouldRefresh(false);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            setIsLoading(true);
+            setIsDialogOpen(false);
+
+            await addUser(newUser);
+            setNewUser({ nickName: '', phone: '' });
+            setShouldRefresh(true);
+        } catch (error) {
+            console.error('新增用户失败:', error);
         }
     };
 
@@ -118,7 +130,7 @@ export default function UserTable() {
                             <TableRow key={user.id}>
                                 <TableCell>
                                     <div className="w-10 h-10 rounded-full overflow-hidden">
-                                        <img 
+                                        <img
                                             src={user.avatarUrl || '/users/uu.png'}
                                             alt={user.nickName}
                                             className="w-full h-full object-cover"
@@ -168,52 +180,32 @@ export default function UserTable() {
 
             {/* User Dialog */}
             <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-                <DialogTitle>{isEditing ? 'Edit User' : 'Add User'}</DialogTitle>
+                <DialogTitle>{isEditing ? '编辑用户' : '新增用户'}</DialogTitle>
                 <DialogBody>
                     <Field className="mb-4">
-                        <Label>Name</Label>
+                        <Label>昵称</Label>
                         <Input
-                            value={newUser.name}
-                            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                            placeholder="Enter user name"
+                            value={newUser.nickName}
+                            onChange={(e) => setNewUser({ ...newUser, nickName: e.target.value })}
+                            placeholder="请输入用户昵称"
                         />
                     </Field>
                     <Field className="mb-4">
-                        <Label>Email</Label>
+                        <Label>手机号</Label>
                         <Input
-                            type="email"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                            placeholder="Enter email address"
+                            type="tel"
+                            value={newUser.phone}
+                            onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                            placeholder="请输入手机号"
                         />
-                    </Field>
-                    <Field className="mb-4">
-                        <Label>Role</Label>
-                        <Select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                        >
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                            <option value="moderator">Moderator</option>
-                        </Select>
-                    </Field>
-                    <Field className="flex items-center gap-4">
-                        <SwitchField>
-                            <Label>Status</Label>
-                            <Switch
-                                checked={newUser.status === 1}
-                                onChange={(checked) => setNewUser({ ...newUser, status: checked ? 1 : 0 })}
-                            />
-                        </SwitchField>
                     </Field>
                 </DialogBody>
                 <DialogActions>
-                    <Button plain onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={() => {
-                        // TODO: Implement save logic
+                    <Button plain onClick={() => {
                         setIsDialogOpen(false);
-                    }}>Save</Button>
+                        setNewUser({ nickName: '', phone: '' });
+                    }}>取消</Button>
+                    <Button onClick={handleSave}>保存</Button>
                 </DialogActions>
             </Dialog>
         </main>

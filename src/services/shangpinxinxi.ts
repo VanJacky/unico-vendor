@@ -85,6 +85,20 @@ export async function page25(options?: { [key: string]: any }) {
   });
 }
 
+
+/** 修改商品排序 POST /admin/goods/info/updateSort */
+export async function updateSort(body: API.GoodsInfoEntity[], options?: { [key: string]: any }) {
+  return request<API.JSONObject>(`${COMMON_BASE_URL}/admin/goods/info/updateSort`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+
 /** 修改 根据ID修改 POST /admin/goods/info/update */
 export async function update18(body: API.GoodsInfoEntity, options?: { [key: string]: any }) {
   return request<API.R>(`${COMMON_BASE_URL}/admin/goods/info/update`, {

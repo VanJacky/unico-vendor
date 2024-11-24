@@ -76,7 +76,7 @@ export default function OrderTable({ orders: initialOrders }) {
         createOrderOnly(orderData)
             .then(() => {
                 setShowPaymentDialog(false);
- 
+
             })
             .catch(error => {
                 // 显示错误提示

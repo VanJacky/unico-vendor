@@ -1,6 +1,7 @@
 'use server'
 
 import { page22 as getTypePage, update15, delete13, add13 } from '@/services/shangpinleixing';
+import { updateSort } from '@/services/shangpinxinxi';
 
 export async function getCategoryWithTypes() {
     try {
@@ -27,7 +28,7 @@ export async function getCategoryWithTypes() {
 export async function updateCategory(categoryData) {
     try {
         const response = await update15(categoryData);
-        if (response.code !== 0) {
+        if (response.code !== 1000) {
             throw new Error(response.msg || '更新分类失败');
         }
         return response.data;
@@ -42,7 +43,7 @@ export async function deleteCategories(categoryIds) {
         // 如果传入的是数组，将其转换为逗号分隔的字符串
         const ids = Array.isArray(categoryIds) ? categoryIds.join(',') : categoryIds;
         const response = await delete13({ ids });
-        if (response.code !== 0) {
+        if (response.code !== 1000) {
             throw new Error(response.msg || '删除分类失败');
         }
         return response.data;
@@ -69,5 +70,18 @@ export async function addCategory(categoryData) {
     } catch (error) {
         console.log('新增分类时出错:', error);
         throw new Error(error.message || '新增分类失败');
+    }
+}
+
+export async function updateProductsSort(productsData) {
+    try {
+        const response = await updateSort(productsData);
+        if (!response.success) {
+            throw new Error(response.message || '更新商品排序失败');
+        }
+        return response;
+    } catch (error) {
+        console.log('更新商品排序时出错:', error);
+        throw new Error(error.message || '更新商品排序失败');
     }
 } 

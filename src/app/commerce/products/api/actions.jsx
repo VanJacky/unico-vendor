@@ -5,6 +5,7 @@ import { page25 as getProductsPage } from '@/services/shangpinxinxi';
 import { list17 as getTypeList } from '@/services/shangpinleixing';
 import { addGoodsWithSpecs } from '@/services/shangpinxinxi';
 import { getGoodsDetail } from '@/services/shangpinxinxi';
+import { update18 as updateProduct } from '@/services/shangpinxinxi';
 
 
 export async function deleteProducts(productIds) {
@@ -59,7 +60,8 @@ export async function getProductsWithTypes(status) {
     const params = status !== undefined ? { data: { status } } : {};
     const response = await getProductsPage(params);
     const productList = response.data.list || [];
-    // console.log("nihao", response.data);
+    // console.log("nihao", response.data.list[2].specs);
+
     // 获取商品类型列表
     const typeResponse = await getTypeList();
     const typeList = typeResponse.data || [];
@@ -72,6 +74,9 @@ export async function getProductsWithTypes(status) {
             typeName: matchingType ? matchingType.name : '未知类型'
         };
     });
+
+        // console.log("nihao", response.data.list[2]);
+
 
     return productsWithType;
 }
@@ -96,5 +101,19 @@ export async function getProductById(id) {
     } catch (error) {
         console.log('获取商品详情时出错:', error);
         throw new Error(error.message || '获取商品详情失败');
+    }
+}
+
+export async function toggleProductStatus(productId, status) {
+    try {
+        const submitData = {
+            id: productId,
+            status: status
+        };
+        
+        return await updateProduct(submitData);
+    } catch (error) {
+        console.log('更新商品状态时出错:', error);
+        throw new Error(error.message || '更新状态失败');
     }
 } 
