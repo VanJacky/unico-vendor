@@ -16,6 +16,7 @@ import { Select } from "@/components/select";
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/dialog";
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
 import { getUserList, fetchGoodsList, createOrderOnly, getOrderList } from '../api/action';
+import { CameraIcon } from "@heroicons/react/24/outline";
 
 export default function OrderTable({ orders: initialOrders }) {
     const [orders, setOrders] = useState(initialOrders);
@@ -83,8 +84,26 @@ export default function OrderTable({ orders: initialOrders }) {
             });
     };
 
+    const activateCamera = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: {
+                    facingMode: 'environment' // 优先使用后置摄像头
+                }
+            });
+            const videoElement = document.getElementById('camera-feed');
+            if (videoElement) {
+                videoElement.srcObject = stream;
+            }
+        } catch (err) {
+            console.error('摄像头访问失败:', err);
+            alert('无法访问摄像头，请确保已授予相机权限');
+        }
+    };
+
     const handleImmediatePayment = () => {
         setCameraActive(true);
+        activateCamera();
     };
 
     // Add search handler
@@ -361,7 +380,20 @@ export default function OrderTable({ orders: initialOrders }) {
                 <DialogTitle>Complete Order Creation</DialogTitle>
                 <DialogBody>
                     <div className="space-y-6">
-                        {!cameraActive ? (
+                        {cameraActive ? (
+                            <div className="text-center space-y-4">
+                                <div className="mx-auto w-64 h-64 bg-gray-100 flex items-center justify-center relative">
+                                    <video
+                                        id="camera-feed"
+                                        autoPlay
+                                        playsInline
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <CameraIcon className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-gray-400" />
+                                </div>
+                                <p className="text-gray-600">请扫描顾客的付款码</p>
+                            </div>
+                        ) : (
                             <div className="space-y-4">
                                 <Button
                                     className="w-full"
@@ -375,18 +407,6 @@ export default function OrderTable({ orders: initialOrders }) {
                                 >
                                     Create Only
                                 </Button>
-                            </div>
-                        ) : (
-                            <div className="text-center space-y-4">
-                                <div className="mx-auto w-64 h-64 bg-gray-100 flex items-center justify-center">
-                                    <video
-                                        id="camera-feed"
-                                        autoPlay
-                                        playsInline
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                <p className="text-gray-600">请扫描顾客的付款码</p>
                             </div>
                         )}
                     </div>
