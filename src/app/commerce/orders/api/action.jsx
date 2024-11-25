@@ -10,7 +10,7 @@ import { page17 as getOrderListAPI } from '@/services/dingdanxinxi';
 export async function getUserList(options) {
     try {
         const response = await getUserPage(options);
-        // console.log('用户列表:', response.data.list);
+        console.log('用户列表:', response.data.list);
         return {
             list: response.data.list,
             pagination: response.data.pagination

@@ -17,6 +17,21 @@ import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } fro
 import { Field, Fieldset, Label, Legend } from "@/components/fieldset";
 import { getUserList, fetchGoodsList, createOrderOnly, getOrderList } from '../api/action';
 import { CameraIcon } from "@heroicons/react/24/outline";
+import { Combobox } from '@headlessui/react'
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
+
+// 添加 LoadingOverlay 组件
+const LoadingOverlay = () => (
+    <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center">
+        <div className="text-white text-xl flex items-center space-x-3">
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Loading...</span>
+        </div>
+    </div>
+);
 
 export default function OrderTable({ orders: initialOrders }) {
     const [orders, setOrders] = useState(initialOrders);
@@ -36,6 +51,9 @@ export default function OrderTable({ orders: initialOrders }) {
         total: 0
     });
     const [selectedProductPrice, setSelectedProductPrice] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [refresh, setRefresh] = useState(0);
+    const [query, setQuery] = useState('')
 
     const toggleExpand = (orderId) => {
         setExpandedRows((prev) => ({
@@ -66,22 +84,24 @@ export default function OrderTable({ orders: initialOrders }) {
         setShowPaymentDialog(true);
     };
 
-    const handleCreateOnly = () => {
-        const orderData = {
-            userId: selectedUser.id,
-            productName: products.find(p => p.id === parseInt(selectedProduct))?.title,
-            price: selectedProductPrice
-        };
+    const handleCreateOnly = async () => {
+        try {
+            setLoading(true);
+            const orderData = {
+                userId: selectedUser.id,
+                productName: products.find(p => p.id === parseInt(selectedProduct))?.title,
+                price: selectedProductPrice
+            };
 
- 
-        createOrderOnly(orderData)
-            .then(() => {
-                setShowPaymentDialog(false);
-
-            })
-            .catch(error => {
-                // 显示错误提示
-            });
+            await createOrderOnly(orderData);
+            setShowPaymentDialog(false);
+            // 触发刷新
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error('创建订单失败:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const activateCamera = async () => {
@@ -107,9 +127,8 @@ export default function OrderTable({ orders: initialOrders }) {
     };
 
     // Add search handler
-    const handleUserSearch = (e) => {
-        const term = e.target.value;
-        setSearchTerm(term);
+    const handleUserSearch = (value) => {
+        setQuery(value);
         // 重置分页到第一页
         setUserPagination(prev => ({
             ...prev,
@@ -161,6 +180,7 @@ export default function OrderTable({ orders: initialOrders }) {
     useEffect(() => {
         const loadOrders = async () => {
             try {
+                setLoading(true);
                 const options = {
                     data: {
                         current: 1,
@@ -170,7 +190,6 @@ export default function OrderTable({ orders: initialOrders }) {
                 };
                 const { list } = await getOrderList(options);
                 
-                // 合并后端数据和模拟数据
                 const formattedList = list.map(order => ({
                     ...order,
                     date: order.createTime,
@@ -195,14 +214,16 @@ export default function OrderTable({ orders: initialOrders }) {
                     notes: order.remark || '-'
                 }));
 
-                setOrders(prev => [...prev, ...formattedList]);
+                setOrders(formattedList); // 直接设置而不是追加
             } catch (error) {
                 console.error('获取订单列表失败:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
         loadOrders();
-    }, []);
+    }, [refresh]); // 添加 refresh 依赖
 
     // 添加订单状态映射函数
     const getOrderStatus = (status) => {
@@ -225,6 +246,11 @@ export default function OrderTable({ orders: initialOrders }) {
             setSelectedProductPrice(product.price);
         }
     };
+
+    // 如果正在加载,显示加载状态
+    if (loading) {
+        return <LoadingOverlay />;
+    }
 
     return (
         <main>
@@ -429,34 +455,67 @@ export default function OrderTable({ orders: initialOrders }) {
                 <DialogBody>
                     <div className="space-y-6">
                         <Field>
-                            <Label>选择用户</Label>
-                            <InputGroup>
-                                <MagnifyingGlassIcon />
-                                <Input
-                                    name="user_search"
-                                    placeholder="搜索用户（姓名、邮箱或电话）..."
-                                    value={searchTerm}
-                                    onChange={handleUserSearch}
-                                />
-                            </InputGroup>
-                            {searchTerm && filteredUsers.length > 0 && (
-                                <div className="mt-2 border rounded-md shadow-sm max-h-60 overflow-y-auto">
-                                    {filteredUsers.map(user => (
-                                        <div
-                                            key={user.id}
-                                            className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                                            onClick={() => {
-                                                setSelectedUser(user);
-                                                setSearchTerm(user.name);
-                                            }}
-                                        >
-                                            <div className="font-medium">{user.name}</div>
-                                            <div className="text-sm text-gray-500">{user.email}</div>
-                                            <div className="text-sm text-gray-500">{user.phone}</div>
-                                        </div>
-                                    ))}
+                            <Combobox as="div" value={selectedUser} onChange={setSelectedUser}>
+                                <Combobox.Label className="block text-sm font-medium leading-6 text-gray-900">
+                                    选择用户
+                                </Combobox.Label>
+                                <div className="relative mt-2">
+                                    <Combobox.Input
+                                        className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        onChange={(event) => handleUserSearch(event.target.value)}
+                                        displayValue={(user) => user?.nickName}
+                                    />
+                                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                                        <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                    </Combobox.Button>
+
+                                    {filteredUsers.length > 0 && (
+                                        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                            {filteredUsers.map((user) => (
+                                                <Combobox.Option
+                                                    key={user.id}
+                                                    value={user}
+                                                    className={({ active }) =>
+                                                        classNames(
+                                                            'relative cursor-default select-none py-2 pl-3 pr-9',
+                                                            active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                                                        )
+                                                    }
+                                                >
+                                                    {({ active, selected }) => (
+                                                        <>
+                                                            <div className="flex">
+                                                                <span className={classNames('truncate', selected && 'font-semibold')}>
+                                                                    {user.nickName}
+                                                                </span>
+                                                                <span
+                                                                    className={classNames(
+                                                                        'ml-2 truncate text-gray-500',
+                                                                        active ? 'text-indigo-200' : 'text-gray-500'
+                                                                    )}
+                                                                >
+                                                                    {user.phone}
+                                                                </span>
+                                                            </div>
+
+                                                            {selected && (
+                                                                <span
+                                                                    className={classNames(
+                                                                        'absolute inset-y-0 right-0 flex items-center pr-4',
+                                                                        active ? 'text-white' : 'text-indigo-600'
+                                                                    )}
+                                                                >
+                                                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </Combobox.Option>
+                                            ))}
+                                        </Combobox.Options>
+                                    )}
                                 </div>
-                            )}
+                            </Combobox>
                         </Field>
 
                         <Field>
